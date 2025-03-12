@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35527.113 d17.12
+VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniChat-BackEnd", "UniChat-BackEnd\UniChat-BackEnd.csproj", "{6F93F5DA-55B2-465B-9558-F765AEC12F28}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniChat_BLL", "UniChat_BLL\UniChat_BLL.csproj", "{4FBBABEB-F58D-42C1-BB93-958DD4BD4B03}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniChat_DAL", "UniChat_DAL\UniChat_DAL.csproj", "{FE6239CB-D166-472E-8D46-88B51DD00A1E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{6F93F5DA-55B2-465B-9558-F765AEC12F28}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F93F5DA-55B2-465B-9558-F765AEC12F28}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F93F5DA-55B2-465B-9558-F765AEC12F28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4FBBABEB-F58D-42C1-BB93-958DD4BD4B03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FBBABEB-F58D-42C1-BB93-958DD4BD4B03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FBBABEB-F58D-42C1-BB93-958DD4BD4B03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FBBABEB-F58D-42C1-BB93-958DD4BD4B03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE6239CB-D166-472E-8D46-88B51DD00A1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE6239CB-D166-472E-8D46-88B51DD00A1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE6239CB-D166-472E-8D46-88B51DD00A1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE6239CB-D166-472E-8D46-88B51DD00A1E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
