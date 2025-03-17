@@ -20,6 +20,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// Allows external devices access to the api
 app.Urls.Add("http://0.0.0.0:5222");
 
 // Configure the HTTP request pipeline.
