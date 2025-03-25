@@ -13,7 +13,7 @@ public class UserEntity
     public string Email { get; set; }
     public string PasswordHash { get; set; }
     public string? ProfilePicture { get; set; }
-    public string? Semester { get; set; }
+    public int? Semester { get; set; }
     public string? Study { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 }

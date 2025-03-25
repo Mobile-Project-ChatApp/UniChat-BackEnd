@@ -76,7 +76,10 @@ public class UserRepository : IUserRepository
                 Email = userDTO.Email,
                 PasswordHash = userDTO.PasswordHash,
                 ProfilePicture = userDTO.ProfilePicture,
+                Semester = userDTO.Semester,
+                Study = userDTO.Study,
                 CreatedAt = userDTO.CreatedAt
+
             };
 
             _context.Users.Add(user);
