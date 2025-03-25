@@ -2,7 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using UniChat_BLL.Interfaces;
 using UniChat_DAL.Data;
 using UniChat_BLL;
-using Wildlife_DAL;
+using UniChat_DAL;
+using UniChat_BackEnd.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,8 +25,15 @@ builder.Services.AddCors(options =>
         });
 });
 
+
+builder.Services.AddSignalR();
+
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<IChatRoomRepository, ChatRoomRepository>();
+builder.Services.AddScoped<ChatRoomService>();
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+builder.Services.AddScoped<MessageService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -46,5 +54,7 @@ app.UseCors(MyAllowSpecificOrigins);
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+
+app.MapHub<ChatHub>("/chatHub");
 
 app.Run();
