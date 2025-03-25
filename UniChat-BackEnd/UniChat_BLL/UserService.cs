@@ -3,6 +3,7 @@ using UniChat_BLL.Interfaces;
 using UniChat_BLL.Dto;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.AspNetCore.Identity;
 
 namespace UniChat_BLL
 {
@@ -27,19 +28,8 @@ namespace UniChat_BLL
 
         public bool CreateUser(CreateEditUserDto userDTO)
         {
-            using (SHA256 sha256Hash = SHA256.Create())
-            {
-                // ComputeHash - returns byte array
-                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(userDTO.PasswordHash));
-
-                // Convert byte array to a string
-                StringBuilder builder = new StringBuilder();
-                for (int i = 0; i < bytes.Length; i++)
-                {
-                    builder.Append(bytes[i].ToString("x2"));
-                }
-                userDTO.PasswordHash = builder.ToString();
-            }
+            var passwordHasher = new PasswordHasher<object>();
+            userDTO.PasswordHash = passwordHasher.HashPassword(null, userDTO.PasswordHash);
 
             return _userRepository.CreateUser(userDTO);
         }
@@ -51,6 +41,8 @@ namespace UniChat_BLL
 
         public bool UpdateUser(int id, CreateEditUserDto userDTO)
         {
+            var passwordHasher = new PasswordHasher<object>();
+            userDTO.PasswordHash = passwordHasher.HashPassword(null, userDTO.PasswordHash);
             return _userRepository.UpdateUser(id, userDTO);
         }
 
