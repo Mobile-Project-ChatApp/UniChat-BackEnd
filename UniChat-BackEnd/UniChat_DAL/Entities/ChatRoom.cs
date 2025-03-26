@@ -6,7 +6,7 @@ namespace UniChat_DAL.Entities
         public string Name { get; set; }
         public string Description { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public virtual List<Message> Messages { get; set; }
-        public virtual List<UserEntity> Members { get; set; }
+        public List<Message> Messages { get; set; }
+        public List<UserChatroom> UserChatrooms { get; set; }
     }
 }

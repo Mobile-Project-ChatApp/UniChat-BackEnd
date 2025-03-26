@@ -10,18 +10,33 @@ namespace UniChat_DAL.Data
         public DbSet<UserEntity> Users { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<ChatRoom> ChatRooms { get; set; }
+        public DbSet<UserChatroom> UserChatrooms { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<UserChatroom>()
+                .HasKey(uc => new { uc.UserId, uc.ChatRoomId });
+
+            modelBuilder.Entity<UserChatroom>()
+                .HasOne(uc => uc.User)
+                .WithMany(u => u.UserChatrooms)
+                .HasForeignKey(uc => uc.UserId);
+
+            modelBuilder.Entity<UserChatroom>()
+                .HasOne(uc => uc.ChatRoom)
+                .WithMany(c => c.UserChatrooms)
+                .HasForeignKey(uc => uc.ChatRoomId);
+
             modelBuilder.Entity<Message>()
-                .HasOne<UserEntity>()
+                .HasOne(m => m.Sender)
                 .WithMany()
                 .HasForeignKey(m => m.SenderId);
 
-            modelBuilder.Entity<ChatRoom>()
-                .HasMany(r => r.Messages)
-                .WithOne()
+            modelBuilder.Entity<Message>()
+                .HasOne(m => m.ChatRoom)
+                .WithMany(c => c.Messages)
                 .HasForeignKey(m => m.ChatRoomId);
         }
     }

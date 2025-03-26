@@ -18,9 +18,7 @@ namespace UniChat_BackEnd.Hubs
 
         public async Task SendMessage(int roomId, string message)
         {
-            var userId = Context.User.Claims.FirstOrDefault(c => c.Type == "userId")?.Value;
-
-            var savedMessage = _messageService.SendMessage(roomId, int.Parse(userId), message);
+            string savedMessage = _messageService.SendMessage(roomId, 1, message);
             
             await Clients.Group(roomId.ToString()).SendAsync("ReceiveMessage", savedMessage);
         }

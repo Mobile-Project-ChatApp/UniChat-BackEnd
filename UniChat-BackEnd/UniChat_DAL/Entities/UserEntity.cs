@@ -10,4 +10,5 @@ public class UserEntity
     public int? Semester { get; set; }
     public string? Study { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public List<UserChatroom> UserChatrooms { get; set; }
 }
