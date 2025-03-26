@@ -9,13 +9,16 @@ namespace UniChat_BackEnd.Hubs
     {
         private readonly MessageService _messageService;
         private readonly ChatRoomService _chatRoomService;
+        private readonly UserService _userService;
 
-        public ChatHub(MessageService messageService, ChatRoomService chatRoomService)
+        public ChatHub(MessageService messageService, ChatRoomService chatRoomService, UserService userService)
         {
             _messageService = messageService;
             _chatRoomService = chatRoomService;
+            _userService = userService;
         }
 
+        // TODO: Add user id to the message
         public async Task SendMessage(int roomId, string message)
         {
             MessageDto savedMessage = _messageService.SendMessage(roomId, 1, message);
