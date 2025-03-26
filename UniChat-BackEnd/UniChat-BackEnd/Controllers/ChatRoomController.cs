@@ -19,14 +19,14 @@ namespace UniChat_BackEnd.Controllers
         [HttpGet]
         public IActionResult GetAllChatRooms()
         {
-            var chatRooms = _chatRoomService.GetAllChatRooms();
+            List<ChatRoomDto> chatRooms = _chatRoomService.GetAllChatRooms();
             return Ok(chatRooms);
         }
 
         [HttpGet("{id}")]
         public IActionResult GetChatRoomById(int id)
         {
-            var chatRoom = _chatRoomService.GetChatRoomById(id);
+            ChatRoomDto chatRoom = _chatRoomService.GetChatRoomById(id);
             if (chatRoom == null)
             {
                 return NotFound();
@@ -37,7 +37,7 @@ namespace UniChat_BackEnd.Controllers
         [HttpPost]
         public IActionResult CreateChatRoom(CreateEditChatRoomDto chatRoomDto)
         {
-            var createdChatRoom = _chatRoomService.CreateChatRoom(chatRoomDto);
+            bool createdChatRoom = _chatRoomService.CreateChatRoom(chatRoomDto);
             if (!createdChatRoom)
             {
                 return BadRequest();
@@ -49,7 +49,7 @@ namespace UniChat_BackEnd.Controllers
         [HttpPut("{id}")]
         public IActionResult UpdateChatRoom(int id, CreateEditChatRoomDto chatRoomDto)
         {
-            var updatedChatRoom = _chatRoomService.UpdateChatRoom(id, chatRoomDto);
+            bool updatedChatRoom = _chatRoomService.UpdateChatRoom(id, chatRoomDto);
             if (!updatedChatRoom)
             {
                 return NotFound();
@@ -60,7 +60,7 @@ namespace UniChat_BackEnd.Controllers
         [HttpDelete("{id}")]
         public IActionResult DeleteChatRoom(int id)
         {
-            var deletedChatRoom = _chatRoomService.DeleteChatRoom(id);
+            bool deletedChatRoom = _chatRoomService.DeleteChatRoom(id);
             if (!deletedChatRoom)
             {
                 return NotFound();
@@ -71,7 +71,7 @@ namespace UniChat_BackEnd.Controllers
         [HttpPost("{id}/users/{userId}")]
         public IActionResult AddUserToChatRoom(int id, int userId)
         {
-            var addedUser = _chatRoomService.AddUserToChatRoom(id, userId);
+            bool addedUser = _chatRoomService.AddUserToChatRoom(id, userId);
             if (!addedUser)
             {
                 return NotFound();
@@ -82,7 +82,7 @@ namespace UniChat_BackEnd.Controllers
         [HttpDelete("{id}/users/{userId}")]
         public IActionResult RemoveUserFromChatRoom(int id, int userId)
         {
-            var removedUser = _chatRoomService.RemoveUserFromChatRoom(id, userId);
+            bool removedUser = _chatRoomService.RemoveUserFromChatRoom(id, userId);
             if (!removedUser)
             {
                 return NotFound();
