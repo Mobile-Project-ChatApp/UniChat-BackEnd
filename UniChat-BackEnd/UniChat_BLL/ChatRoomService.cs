@@ -41,7 +41,11 @@ namespace UniChat_BLL
       {
         return _chatRoomRepository.AddUserToChatRoom(chatRoomId, userId);
       }
-      
+
+      public bool RemoveUserFromChatRoom(int chatRoomId, int userId)
+      {
+        return _chatRoomRepository.RemoveUserFromChatRoom(chatRoomId, userId);
+      }
     }
 }
 
