@@ -6,10 +6,12 @@ namespace UniChat_BLL
     public class MessageService
     {
         private readonly IMessageRepository _messageRepository;
+        private readonly IUserRepository _userRepository;
 
-        public MessageService(IMessageRepository messageRepository)
+        public MessageService(IMessageRepository messageRepository, IUserRepository userRepository)
         {
             _messageRepository = messageRepository;
+            _userRepository = userRepository;
         }
         
         public List<MessageDto> GetMessagesForChatRoom(int chatRoomId)
@@ -17,9 +19,12 @@ namespace UniChat_BLL
             return _messageRepository.GetMessagesForChatRoom(chatRoomId);
         }
 
-        public string SendMessage(int chatRoomId, int senderId, string messageText)
+        public MessageDto SendMessage(int chatRoomId, int senderId, string messageText)
         {
-            return _messageRepository.SendMessage(chatRoomId, senderId, messageText);
+            MessageDto message = _messageRepository.SendMessage(chatRoomId, senderId, messageText);
+            UserDto sender = _userRepository.GetUserById(senderId);
+            message.Sender = sender;
+            return message;
         }
 
         public bool DeleteMessage(int messageId)
