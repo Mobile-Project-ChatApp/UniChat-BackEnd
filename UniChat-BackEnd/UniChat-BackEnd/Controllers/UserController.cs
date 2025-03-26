@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using UniChat_BLL.Dto;
 using UniChat_BLL;
 
-namespace Wildlife_PL.API.Controllers
+namespace UniChat.API.Controllers
 {
     [ApiController]
     [Route("api/users")]

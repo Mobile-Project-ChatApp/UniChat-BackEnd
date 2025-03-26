@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using UniChat_BLL.Interfaces;
 using UniChat_DAL.Data;
 using UniChat_BLL;
-using Wildlife_DAL;
+using UniChat_DAL;
 
 var builder = WebApplication.CreateBuilder(args);
 

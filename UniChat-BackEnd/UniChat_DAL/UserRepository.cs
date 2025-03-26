@@ -3,7 +3,7 @@ using UniChat_DAL.Data;
 using UniChat_BLL.Dto;
 using UniChat_DAL.Entities;
 
-namespace Wildlife_DAL;
+namespace UniChat_DAL;
 
 public class UserRepository : IUserRepository
 {
