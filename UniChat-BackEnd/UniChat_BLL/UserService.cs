@@ -46,5 +46,44 @@ namespace UniChat_BLL
             return _userRepository.UpdateUser(id, userDTO);
         }
 
+        public UserDto? GetUserByUsername(string username)
+        {
+            return _userRepository.GetUserByUsername(username);
+        }
+
+        public UserDto? GetUserByRefreshToken(string refreshToken)
+        {
+            return _userRepository.GetUserByRefreshToken(refreshToken);
+        }
+
+        public bool VerifyPassword(string password, string passwordHash)
+        {
+            var passwordHasher = new PasswordHasher<object>();
+
+            var result = passwordHasher.VerifyHashedPassword(null, passwordHash, password);
+
+            return result == PasswordVerificationResult.Success;
+        }
+
+        public void UpdateRefreshToken(int userId, string refreshToken, DateTime expiry)
+        {
+            UserDto user = _userRepository.GetUserById(userId);
+            if (user == null)
+                throw new ArgumentException("User not found");
+
+            CreateEditUserDto createEditUserDTO = new CreateEditUserDto
+            {
+                Username = user.Username,
+                Email = user.Email,
+                PasswordHash = user.PasswordHash,
+                ProfilePicture = user.ProfilePicture,
+                CreatedAt = user.CreatedAt,
+                RefreshToken = refreshToken, // Assign new refresh token
+                RefreshTokenExpiry = expiry  // Assign new expiry date
+            };
+
+            _userRepository.UpdateUser(user.Id, createEditUserDTO); // Assuming this method commits the changes to the database
+        }
+
     }
 }
