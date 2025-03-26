@@ -3,6 +3,7 @@ using UniChat_BLL.Interfaces;
 using UniChat_DAL.Data;
 using UniChat_BLL;
 using UniChat_DAL;
+using UniChat_BackEnd.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,14 +19,22 @@ builder.Services.AddCors(options =>
     options.AddPolicy(MyAllowSpecificOrigins,
         policy =>
         {
-            policy.AllowAnyOrigin()
-                  .AllowAnyMethod()
-                  .AllowAnyHeader();
+            policy.WithOrigins("http://localhost:5500", "http://127.0.0.1:5500")
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
         });
 });
 
+
+builder.Services.AddSignalR();
+
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<IChatRoomRepository, ChatRoomRepository>();
+builder.Services.AddScoped<ChatRoomService>();
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+builder.Services.AddScoped<MessageService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -46,5 +55,7 @@ app.UseCors(MyAllowSpecificOrigins);
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+
+app.MapHub<ChatHub>("/chatHub");
 
 app.Run();

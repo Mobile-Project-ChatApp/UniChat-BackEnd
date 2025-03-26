@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace UniChat_DAL.Entities;
+﻿namespace UniChat_DAL.Entities;
 
 public class UserEntity
 {
@@ -16,4 +10,5 @@ public class UserEntity
     public int? Semester { get; set; }
     public string? Study { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public List<UserChatroom> UserChatrooms { get; set; }
 }
