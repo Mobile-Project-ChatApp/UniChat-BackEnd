@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
+    <title>WebSocket Chat</title>
+    <style>
+        .chat-container {
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+        }
+        #output {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <h2>Chat Room</h2>
+        
+        <!-- Room Selection -->
+        <div>
+            <input type="number" id="roomId" placeholder="Enter Room ID">
+            <button onclick="joinRoom()">Join Room</button>
+            <button onclick="leaveRoom()">Leave Room</button>
+        </div>
+
+        <!-- Message Input -->
+        <div>
+            <input type="text" id="message" placeholder="Type a message">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+
+        <!-- Messages Output -->
+        <div id="output"></div>
+    </div>
+
+    <script>
+        let currentRoomId = null;
+
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("https://localhost:7054/chatHub")
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
+
+        // Start the connection
+        async function start() {
+            try {
+                await connection.start();
+                console.log("SignalR Connected.");
+            } catch (err) {
+                console.log(err);
+                setTimeout(start, 5000);
+            }
+        };
+
+        // Handle receiving messages
+        connection.on("ReceiveMessage", (message) => {
+            const messageDiv = document.createElement("div");
+            messageDiv.className = "message";
+            messageDiv.innerHTML = `
+                <strong>User ${message.senderId}</strong>: 
+                ${message.messageText}
+                <small>(${new Date(message.sentAt).toLocaleTimeString()})</small>
+            `;
+            document.getElementById("output").appendChild(messageDiv);
+            // Auto scroll to bottom
+            document.getElementById("output").scrollTop = document.getElementById("output").scrollHeight;
+        });
+
+        // Handle user joined notifications
+        connection.on("UserJoined", (username) => {
+            const messageDiv = document.createElement("div");
+            messageDiv.className = "message";
+            messageDiv.innerHTML = `<em>${username} joined the room</em>`;
+            document.getElementById("output").appendChild(messageDiv);
+        });
+
+        // Join a chat room
+        async function joinRoom() {
+            const roomId = document.getElementById("roomId").value;
+            if (!roomId) {
+                alert("Please enter a room ID");
+                return;
+            }
+
+            try {
+                await connection.invoke("JoinRoom", parseInt(roomId));
+                currentRoomId = parseInt(roomId);
+                console.log(`Joined room ${roomId}`);
+                // Clear previous messages
+                document.getElementById("output").innerHTML = "";
+            } catch (err) {
+                console.error(err);
+                alert("Failed to join room");
+            }
+        }
+
+        // Leave the current room
+        async function leaveRoom() {
+            if (!currentRoomId) {
+                alert("You're not in any room");
+                return;
+            }
+
+            try {
+                await connection.invoke("LeaveRoom", currentRoomId);
+                console.log(`Left room ${currentRoomId}`);
+                currentRoomId = null;
+                document.getElementById("output").innerHTML = "";
+            } catch (err) {
+                console.error(err);
+                alert("Failed to leave room");
+            }
+        }
+
+        // Send a message
+        async function sendMessage() {
+            if (!currentRoomId) {
+                alert("Please join a room first");
+                return;
+            }
+
+            const messageInput = document.getElementById("message");
+            const message = messageInput.value;
+            
+            if (message) {
+                try {
+                    await connection.invoke("SendMessage", currentRoomId, message);
+                    messageInput.value = ""; // Clear input after sending
+                } catch (err) {
+                    console.error(err);
+                    alert("Failed to send message");
+                }
+            }
+        }
+
+        // Handle Enter key in message input
+        document.getElementById("message").addEventListener("keypress", (event) => {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        });
+
+        // Start the connection when the page loads
+        start();
+    </script>
+</body>
+</html> 

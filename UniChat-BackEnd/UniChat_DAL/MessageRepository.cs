@@ -29,7 +29,7 @@ namespace UniChat_DAL
             return messages;
         }
 
-        public bool SendMessage(int chatRoomId, int senderId, string messageText)
+        public string SendMessage(int chatRoomId, int senderId, string messageText)
         {
             var message = new Message() {
                 ChatRoomId = chatRoomId,
@@ -41,7 +41,7 @@ namespace UniChat_DAL
             _context.Messages.Add(message);
             _context.SaveChanges();
 
-            return true;
+            return messageText;
         }
 
         public bool DeleteMessage(int messageId)

@@ -17,7 +17,7 @@ namespace UniChat_BLL
             return _messageRepository.GetMessagesForChatRoom(chatRoomId);
         }
 
-        public bool SendMessage(int chatRoomId, int senderId, string messageText)
+        public string SendMessage(int chatRoomId, int senderId, string messageText)
         {
             return _messageRepository.SendMessage(chatRoomId, senderId, messageText);
         }
