@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 using UniChat_BLL.Dto;
 using UniChat_BLL;
 
@@ -22,7 +24,7 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public IActionResult Login([FromBody] LoginDto loginDto)
     {
-        UserDto? user = _userService.GetUserByUsername(loginDto.Username);
+        UserDto? user = _userService.GetUserByEmail(loginDto.Email);
         if (user == null || !_userService.VerifyPassword(loginDto.Password, user.PasswordHash))
             return Unauthorized("Invalid credentials");
 
@@ -39,10 +41,25 @@ public class AuthController : ControllerBase
             SameSite = SameSiteMode.Strict
         });
 
-        return Ok(new { message = "Login successful", refreshToken });
+        return Ok(new { message = "Login successful", refreshToken, accessToken });
     }
 
+    [Authorize]
+    [HttpGet("profile")]
+    public IActionResult GetProfile()
+    {
+    // Get user ID from JWT token claims
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+    if (userIdClaim == null)
+        return Unauthorized("Invalid token");
 
+    int userId = int.Parse(userIdClaim.Value);
+    var user = _userService.GetUserById(userId);
+    if (user == null)
+        return NotFound("User not found");
+
+    return Ok(user);
+    }
 
 
     [HttpPost("refresh")]
