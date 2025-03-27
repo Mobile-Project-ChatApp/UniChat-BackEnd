@@ -10,6 +10,7 @@ namespace UniChat_BLL.Interfaces
         bool DeleteUser(int id);
         bool UpdateUser(int id, CreateEditUserDto userDTO);
         UserDto? GetUserByUsername(string username);
+        UserDto? GetUserByEmail(string email);
         UserDto? GetUserByRefreshToken(string refreshToken);
         void UpdateRefreshToken(int id, string refreshToken, DateTime refreshTokenExpiry);
     }

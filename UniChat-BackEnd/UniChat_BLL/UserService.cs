@@ -51,6 +51,11 @@ namespace UniChat_BLL
             return _userRepository.GetUserByUsername(username);
         }
 
+        public UserDto? GetUserByEmail(string email)
+        {
+            return _userRepository.GetUserByEmail(email);
+        }
+
         public UserDto? GetUserByRefreshToken(string refreshToken)
         {
             return _userRepository.GetUserByRefreshToken(refreshToken);

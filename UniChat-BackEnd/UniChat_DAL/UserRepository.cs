@@ -174,6 +174,31 @@ public class UserRepository : IUserRepository
         }
     }
 
+    public UserDto? GetUserByEmail(string email)
+    {
+        try
+        {
+            UserEntity? user = _context.Users.FirstOrDefault(u => u.Email == email);
+            if (user == null)
+            {
+                return null;
+            }
+            return new UserDto
+            {
+                Id = user.Id,
+                Username = user.Username,
+                PasswordHash = user.PasswordHash,
+                Email = user.Email,
+                ProfilePicture = user.ProfilePicture,
+                CreatedAt = user.CreatedAt
+            };
+        }
+        catch (Exception e)
+        {
+            throw new Exception("An error occurred while getting the user by username", e);
+        }
+    }
+
     public UserDto? GetUserByRefreshToken(string refreshToken)
     {
         try
