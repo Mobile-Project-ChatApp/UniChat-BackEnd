@@ -47,4 +47,5 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
+app.Urls.Add("http://0.0.0.0:5222");
 app.Run();
