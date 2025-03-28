@@ -24,7 +24,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(MyAllowSpecificOrigins,
         policy =>
         {
-            policy.WithOrigins("http://localhost:5500", "http://127.0.0.1:5500")
+            policy.WithOrigins("http://localhost:5500", "http://127.0.0.1:5500", "http://0.0.0.0:5222")
                 .AllowAnyMethod()
                 .AllowAnyHeader()
                 .AllowCredentials();
@@ -107,5 +107,5 @@ app.MapControllers();
 
 app.MapHub<ChatHub>("/chatHub");
 
-app.Urls.Add("http://0.0.0.0:5222");
+
 app.Run();
