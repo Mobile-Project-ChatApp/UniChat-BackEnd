@@ -22,13 +22,24 @@ var MyAllowSpecificOrigins = "MyAllowSpecificOrigins";
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(MyAllowSpecificOrigins,
-        policy =>
-        {
-            policy.WithOrigins("http://localhost:5500", "http://127.0.0.1:5500", "http://0.0.0.0:5222")
-                .AllowAnyMethod()
-                .AllowAnyHeader()
-                .AllowCredentials();
-        });
+    policy =>
+    {
+        policy.WithOrigins(
+                "http://localhost:3000",
+                "http://127.0.0.1:3000",
+                "http://localhost:19000",
+                "http://localhost:19006",
+                "http://10.0.2.2:5222",
+                "http://192.168.1.104",
+                "http://192.168.1.104:5222",
+                "http://192.168.1.104:3000",
+                "http://192.168.1.104:19000",
+                "http://192.168.1.104:19006"
+            )
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
+    });
 });
 
 
@@ -98,6 +109,19 @@ if (app.Environment.IsDevelopment())
 
 
 app.UseCors(MyAllowSpecificOrigins);
+app.Use(async (context, next) =>
+{
+    Console.WriteLine($"Request received: {context.Request.Method} {context.Request.Path}");
+    Console.WriteLine($"From: {context.Connection.RemoteIpAddress}");
+    
+    // Log headers
+    foreach (var header in context.Request.Headers)
+    {
+        Console.WriteLine($"Header: {header.Key}: {header.Value}");
+    }
+    
+    await next();
+});
 
 app.UseHttpsRedirection();
 
@@ -107,5 +131,7 @@ app.MapControllers();
 
 app.MapHub<ChatHub>("/chatHub");
 
-
+app.Urls.Clear(); // Clear any default URLs
+app.Urls.Add("http://*:5222");
+app.Urls.Add("http://0.0.0.0:5222"); // Explicitly listen on all IPv4 interfaces
 app.Run();
