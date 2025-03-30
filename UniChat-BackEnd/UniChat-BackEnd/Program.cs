@@ -133,5 +133,5 @@ app.MapHub<ChatHub>("/chatHub");
 
 app.Urls.Clear(); // Clear any default URLs
 app.Urls.Add("http://*:5222");
-app.Urls.Add("http://0.0.0.0:5222"); // Explicitly listen on all IPv4 interfaces
+//app.Urls.Add("http://0.0.0.0:5222"); // Explicitly listen on all IPv4 interfaces
 app.Run();
