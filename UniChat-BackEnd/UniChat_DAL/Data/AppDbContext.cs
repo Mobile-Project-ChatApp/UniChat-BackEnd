@@ -6,6 +6,16 @@ namespace UniChat_DAL.Data
     public class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+        
+        public AppDbContext() { }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseNpgsql("Host=localhost;Port=5431;Database=Unichat-db;Username=Unichat;Password=Unichat1234!");
+            }
+        }
 
         public DbSet<UserEntity> Users { get; set; }
         public DbSet<Message> Messages { get; set; }
@@ -40,6 +50,7 @@ namespace UniChat_DAL.Data
                 .HasOne(m => m.ChatRoom)
                 .WithMany(c => c.Messages)
                 .HasForeignKey(m => m.ChatRoomId);
+                
             modelBuilder.Entity<UserAnnouncementInteraction>()
                 .HasKey(x => x.Id);
 
