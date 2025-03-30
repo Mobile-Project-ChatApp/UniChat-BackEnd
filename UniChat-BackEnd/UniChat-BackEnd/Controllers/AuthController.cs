@@ -44,6 +44,31 @@ public class AuthController : ControllerBase
         return Ok(new { message = "Login successful", refreshToken, accessToken });
     }
 
+    [HttpPost("reset-password")]
+public IActionResult ResetPassword([FromBody] ResetPasswordDto resetDto)
+{
+
+    var user = _userService.GetUserByEmail(resetDto.Email);
+    if (user == null)
+        return NotFound("User not found");
+
+    var updatedUser = new CreateEditUserDto
+    {
+        Username = user.Username,
+        Email = user.Email,
+        PasswordHash = resetDto.Password, // Will be hashed inside UserService
+        ProfilePicture = user.ProfilePicture,
+        CreatedAt = user.CreatedAt,
+        Semester = user.Semester,
+        Study = user.Study,
+        RefreshToken = user.RefreshToken,
+        RefreshTokenExpiry = user.RefreshTokenExpiry
+    };
+
+    bool result = _userService.UpdateUser(user.Id, updatedUser);
+    return result ? Ok("Password updated successfully") : StatusCode(500, "Update failed");
+}
+
     [Authorize]
     [HttpGet("profile")]
     public IActionResult GetProfile()
