@@ -10,6 +10,10 @@ public class AnnouncementService
     {
         _announcementRepository = announcementRepository;
     }
+    public async Task<AnnouncementDto> GetAnnouncementById(int id)
+    {
+        return await _announcementRepository.GetAnnouncementById(id);
+    }
     public async Task<List<AnnouncementDto>> GetAllAnnouncementsByChatroom(int chatroomId)
     {
         return await _announcementRepository.GetAllAnnouncementsByChatroom(chatroomId);
@@ -23,4 +27,14 @@ public class AnnouncementService
         return await _announcementRepository.GetRecentAnnouncementsByChatroomAsync(chatroom, 7);
     }
 
+    public bool CreateAnnouncement(CreateEditAnnouncementDto announcementDto)
+    {
+        return _announcementRepository.CreateAnnouncement(announcementDto);
+
+    }
+
+    public bool DeleteAnnouncement(int id)
+    {
+        return _announcementRepository.DeleteAnnouncement(id);
+    }
 }
