@@ -8,6 +8,7 @@ using UniChat_BackEnd.Hubs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using UniChat_DAL.Repositories;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -51,6 +52,8 @@ builder.Services.AddScoped<IChatRoomRepository, ChatRoomRepository>();
 builder.Services.AddScoped<ChatRoomService>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<MessageService>();
+builder.Services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
+builder.Services.AddScoped<AnnouncementService>();
 builder.Services.AddScoped<AuthService>();
 
 builder.Services.AddControllers();
@@ -131,7 +134,4 @@ app.MapControllers();
 
 app.MapHub<ChatHub>("/chatHub");
 
-app.Urls.Clear(); // Clear any default URLs
-app.Urls.Add("http://*:5222");
-//app.Urls.Add("http://0.0.0.0:5222"); // Explicitly listen on all IPv4 interfaces
 app.Run();

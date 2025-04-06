@@ -20,7 +20,7 @@ namespace UniChat_DAL.Data
         public DbSet<UserEntity> Users { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<ChatRoom> ChatRooms { get; set; }
-        public DbSet<UserChatroom> UserChatrooms { get; set; }
+        public DbSet<ChatroomUser> UserChatrooms { get; set; }
         public DbSet<AnnouncementEntity> Announcements { get; set; }
         public DbSet<UserAnnouncementInteraction> UserAnnouncementInteractions { get; set; }
 
@@ -28,17 +28,17 @@ namespace UniChat_DAL.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<UserChatroom>()
+            modelBuilder.Entity<ChatroomUser>()
                 .HasKey(uc => new { uc.UserId, uc.ChatRoomId });
 
-            modelBuilder.Entity<UserChatroom>()
+            modelBuilder.Entity<ChatroomUser>()
                 .HasOne(uc => uc.User)
-                .WithMany(u => u.UserChatrooms)
+                .WithMany(u => u.ChatroomsUser)
                 .HasForeignKey(uc => uc.UserId);
 
-            modelBuilder.Entity<UserChatroom>()
+            modelBuilder.Entity<ChatroomUser>()
                 .HasOne(uc => uc.ChatRoom)
-                .WithMany(c => c.UserChatrooms)
+                .WithMany(c => c.ChatroomsUser)
                 .HasForeignKey(uc => uc.ChatRoomId);
 
             modelBuilder.Entity<Message>()
@@ -50,9 +50,9 @@ namespace UniChat_DAL.Data
                 .HasOne(m => m.ChatRoom)
                 .WithMany(c => c.Messages)
                 .HasForeignKey(m => m.ChatRoomId);
-                
+
             modelBuilder.Entity<UserAnnouncementInteraction>()
-                .HasKey(x => x.Id);
+                .HasKey(x => new { x.UserId, x.AnnouncementId });
 
             modelBuilder.Entity<UserAnnouncementInteraction>()
                 .HasOne(x => x.User)
@@ -67,10 +67,16 @@ namespace UniChat_DAL.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<AnnouncementEntity>()
-                .HasIndex(x => x.Date);
+                .HasIndex(x => x.DateCreated);
 
             modelBuilder.Entity<AnnouncementEntity>()
                 .HasIndex(x => x.Important);
+
+            modelBuilder.Entity<AnnouncementEntity>()
+                .HasOne(x => x.Chatroom)
+                .WithMany(x => x.Announcements)
+                .HasForeignKey(x => x.ChatroomId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

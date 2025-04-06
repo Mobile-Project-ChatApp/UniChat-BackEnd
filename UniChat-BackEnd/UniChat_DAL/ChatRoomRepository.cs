@@ -98,7 +98,7 @@ public class ChatRoomRepository : IChatRoomRepository
             throw new Exception("User not found");
         } 
 
-        chatRoom.UserChatrooms.Add(new UserChatroom { UserId = userId, ChatRoomId = chatRoomId });
+        chatRoom.ChatroomsUser.Add(new ChatroomUser { UserId = userId, ChatRoomId = chatRoomId });
         _context.SaveChanges();
 
         return true;
@@ -118,7 +118,7 @@ public class ChatRoomRepository : IChatRoomRepository
             throw new Exception("User not found");
         }
 
-        chatRoom.UserChatrooms.Remove(userChatroom);
+        chatRoom.ChatroomsUser.Remove(userChatroom);
         _context.SaveChanges();
 
         return true;
