@@ -74,7 +74,7 @@ public IActionResult ResetPassword([FromBody] ResetPasswordDto resetDto)
     public IActionResult GetProfile()
     {
     // Get user ID from JWT token claims
-    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+    Claim? userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
     if (userIdClaim == null)
         return Unauthorized("Invalid token");
 

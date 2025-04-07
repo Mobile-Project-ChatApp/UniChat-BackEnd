@@ -1,6 +1,6 @@
 ﻿namespace UniChat_BLL.Dto;
 
-public class CreateEditAnnouncementDto
+public class CreateAnnouncementDto
 {
     public int SenderId { get; set; }
     public int ChatroomId { get; set; }

@@ -3,6 +3,7 @@ using UniChat_DAL.Data;
 using UniChat_DAL.Entities;
 using UniChat_BLL.Dto;
 using UniChat_BLL.Interfaces;
+using System.Linq.Expressions;
 
 namespace UniChat_DAL.Repositories
 {
@@ -15,7 +16,7 @@ namespace UniChat_DAL.Repositories
             _context = context;
         }
 
-        public Task<AnnouncementDto?> GetAnnouncementById(int id)
+        public Task<AnnouncementDto?> GetAnnouncementById(int id, int requestId)
         {
             return _context.Announcements
                 .Where(a => a.Id == id)
@@ -43,7 +44,7 @@ namespace UniChat_DAL.Repositories
                 .FirstOrDefaultAsync();
         }
 
-        public Task<List<AnnouncementDto>> GetAllAnnouncementsByChatroom(int chatroom)
+        public Task<List<AnnouncementDto>> GetAllAnnouncementsByChatroom(int chatroom, int requestId)
         {
             return _context.Announcements
                 .OrderByDescending(a => a.DateCreated)
@@ -71,6 +72,7 @@ namespace UniChat_DAL.Repositories
                     UserInteractions = a.UserInteractions
                         .OrderByDescending(ui => ui.SavedAt ?? ui.ReadAt)
                         .Where(ui => ui.AnnouncementId == a.Id)
+                        .Where(ui => ui.UserId == requestId)
                         .Select(ui => new UserAnnouncementInteractionDto
                         {
                             UserId = ui.UserId,
@@ -87,7 +89,7 @@ namespace UniChat_DAL.Repositories
 
 
 
-        public async Task<List<AnnouncementDto>> GetImportantAnnouncementsByChatroomAsync(int chatroom)
+        public async Task<List<AnnouncementDto>> GetImportantAnnouncementsByChatroomAsync(int chatroom, int requestId)
         {
             return await _context.Announcements.Where(a => a.Important)
                 .Where(a => a.ChatroomId == chatroom)
@@ -131,7 +133,7 @@ namespace UniChat_DAL.Repositories
         }
 
 
-        public async Task<List<AnnouncementDto>> GetRecentAnnouncementsByChatroomAsync(int chatroom, int days = 7)
+        public async Task<List<AnnouncementDto>> GetRecentAnnouncementsByChatroomAsync(int chatroom, int requestId, int days = 7)
         {
             var cutoffDate = DateTime.UtcNow.AddDays(-days);
             return await _context.Announcements.Where(a => a.DateCreated >= cutoffDate)
@@ -174,7 +176,7 @@ namespace UniChat_DAL.Repositories
                 .ToListAsync();
         }
 
-        public bool CreateAnnouncement(CreateEditAnnouncementDto announcementDto)
+        public bool CreateAnnouncement(CreateAnnouncementDto announcementDto)
         {
             var announcement = new AnnouncementEntity
             {
@@ -202,61 +204,53 @@ namespace UniChat_DAL.Repositories
             return true;
         }
 
-        //public async Task<AnnouncementEntity> UpdateAnnouncementAsync(AnnouncementEntity announcement)
-        //{
-        //    _context.Announcements.Update(announcement);
-        //    await _context.SaveChangesAsync();
-        //    return announcement;
-        //}
+        public bool UpdateAnnouncement(EditAnnouncementDto announcementDto, int id)
+        {
+            try
+            {
+                AnnouncementEntity? announcement = _context.Announcements.Find(id);
+                if (announcement == null)
+                {
+                    throw new Exception("Announcement not found");
+                }
 
-        //public async Task SaveAnnouncementForUserAsync(int announcementId, int userId)
-        //{
-        //    var interaction = await _context.UserAnnouncementInteractions
-        //        .FirstOrDefaultAsync(x => x.AnnouncementId == announcementId && x.UserId == userId);
+                announcement.Title = announcementDto.Title;
+                announcement.Content = announcementDto.Content;
+                announcement.Important = announcementDto.Important;
+                
+                _context.SaveChanges();
+                return true;
+            }
+            catch (Exception e)
+            {
+                throw new Exception("An error occurred while updating user", e);
+            }
 
-        //    if (interaction == null)
-        //    {
-        //        interaction = new Entities.UserAnnouncementInteraction
-        //        {
-        //            UserId = userId,
-        //            AnnouncementId = announcementId,
-        //            IsSaved = true,
-        //            SavedAt = DateTime.Now
-        //        };
-        //        _context.UserAnnouncementInteractions.Add(interaction);
-        //    }
-        //    else
-        //    {
-        //        interaction.IsSaved = true;
-        //        interaction.SavedAt = DateTime.Now;
-        //    }
 
-        //    await _context.SaveChangesAsync();
-        //}
+        }
 
-        //public async Task MarkAnnouncementAsReadAsync(int announcementId, int userId)
-        //{
-        //    var interaction = await _context.UserAnnouncementInteractions
-        //        .FirstOrDefaultAsync(x => x.AnnouncementId == announcementId && x.UserId == userId);
+        public async Task MarkAnnouncementAsReadAsync(int announcementId, int userId)
+        {
+            var interaction = await _context.UserAnnouncementInteractions
+                .FirstOrDefaultAsync(x => x.AnnouncementId == announcementId && x.UserId == userId);
+            if (interaction == null)
+            {
+                interaction = new UserAnnouncementInteraction
+                {
+                    UserId = userId,
+                    AnnouncementId = announcementId,
+                    IsRead = true,
+                    ReadAt = DateTime.UtcNow
+                };
+                _context.UserAnnouncementInteractions.Add(interaction);
+            }
+            else
+            {
+                interaction.IsRead = true;
+                interaction.ReadAt = DateTime.UtcNow;
+            }
+            await _context.SaveChangesAsync();
 
-        //    if (interaction == null)
-        //    {
-        //        interaction = new Entities.UserAnnouncementInteraction
-        //        {
-        //            UserId = userId,
-        //            AnnouncementId = announcementId,
-        //            IsRead = true,
-        //            ReadAt = DateTime.Now
-        //        };
-        //        _context.UserAnnouncementInteractions.Add(interaction);
-        //    }
-        //    else
-        //    {
-        //        interaction.IsRead = true;
-        //        interaction.ReadAt = DateTime.Now;
-        //    }
-
-        //    await _context.SaveChangesAsync();
-        //}
+        }
     }
 }
