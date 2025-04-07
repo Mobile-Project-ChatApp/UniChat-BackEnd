@@ -35,7 +35,8 @@ builder.Services.AddCors(options =>
                 "http://192.168.1.104:5222",
                 "http://192.168.1.104:3000",
                 "http://192.168.1.104:19000",
-                "http://192.168.1.104:19006"
+                "http://192.168.1.104:19006",
+                "http://127.0.0.1:5500"
             )
             .AllowAnyMethod()
             .AllowAnyHeader()
@@ -98,6 +99,21 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = jwtSettings["Issuer"],
         ValidAudience = jwtSettings["Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chatHub"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
     };
 });
 
