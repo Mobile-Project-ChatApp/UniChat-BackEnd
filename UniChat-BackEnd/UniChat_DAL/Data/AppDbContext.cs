@@ -33,12 +33,12 @@ namespace UniChat_DAL.Data
 
             modelBuilder.Entity<UserChatroom>()
                 .HasOne(uc => uc.User)
-                .WithMany(u => u.UserChatroom)
+                .WithMany(u => u.UserChatrooms)
                 .HasForeignKey(uc => uc.UserId);
 
             modelBuilder.Entity<UserChatroom>()
                 .HasOne(uc => uc.ChatRoom)
-                .WithMany(c => c.UserChatroom)
+                .WithMany(c => c.UserChatrooms)
                 .HasForeignKey(uc => uc.ChatRoomId);
 
             modelBuilder.Entity<Message>()

@@ -118,7 +118,7 @@ public class ChatRoomRepository : IChatRoomRepository
             throw new Exception("User not found");
         }
 
-        chatRoom.UserChatroom.Remove(userChatroom);
+        chatRoom.UserChatrooms.Remove(userChatroom);
         _context.SaveChanges();
 
         return true;
