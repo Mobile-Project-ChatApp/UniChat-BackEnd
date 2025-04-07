@@ -21,18 +21,43 @@ namespace UniChat_BackEnd.Hubs
             _userService = userService;
         }
 
-        // TODO: Add user id to the message
-        public async Task SendMessage(int roomId, string message)
+        private async Task<(int userId, UserDto user)> GetUserInfo()
         {
-            var userId = Context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            var userIdStr = Context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             
-            if (userId == null)
+            if (userIdStr == null)
             {
                 await Clients.Caller.SendAsync("UserNotFound", "User not found");
-                return;
+                return (0, null);
             }
 
-            MessageDto savedMessage = _messageService.SendMessage(roomId, int.Parse(userId), message);
+            var userId = int.Parse(userIdStr);
+            var user = _userService.GetUserById(userId);
+
+            if (user == null)
+            {
+                await Clients.Caller.SendAsync("UserNotFound", "User not found");
+                return (0, null);
+            }
+
+            return (userId, user);
+        }
+
+        private MinimalUserDto CreateMinimalUserDto(UserDto user)
+        {
+            return new MinimalUserDto
+            {
+                Id = user.Id,
+                Username = user.Username
+            };
+        }
+
+        public async Task SendMessage(int roomId, string message)
+        {
+            var (userId, user) = await GetUserInfo();
+            if (user == null) return;
+
+            MessageDto savedMessage = _messageService.SendMessage(roomId, userId, message);
 
             if (savedMessage == null)
             {   
@@ -47,25 +72,12 @@ namespace UniChat_BackEnd.Hubs
         {
             try
             {
-                var userId = Context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-                
-                if (userId == null)
-                {
-                    await Clients.Caller.SendAsync("UserNotFound", "User not found");
-                    return;
-                }
-
-                UserDto user = _userService.GetUserById(int.Parse(userId));
-
-                if (user == null)
-                {
-                    await Clients.Caller.SendAsync("UserNotFound", "User not found");
-                    return;
-                }
+                var (userId, user) = await GetUserInfo();
+                if (user == null) return;
 
                 await Groups.AddToGroupAsync(Context.ConnectionId, roomId.ToString());
 
-                bool added = _chatRoomService.AddUserToChatRoom(roomId, int.Parse(userId));
+                bool added = _chatRoomService.AddUserToChatRoom(roomId, userId);
 
                 if (!added)
                 {
@@ -73,9 +85,8 @@ namespace UniChat_BackEnd.Hubs
                     return;
                 }
 
-                await Clients.Group(roomId.ToString()).SendAsync("UserJoined", user.Username);
-            }
-            catch (Exception ex)
+                await Clients.Group(roomId.ToString()).SendAsync("UserJoined", CreateMinimalUserDto(user));
+            } catch (Exception ex)
             {
                 Console.WriteLine("Exception in JoinRoom: " + ex.Message);
                 Console.WriteLine(ex.StackTrace);
@@ -83,36 +94,30 @@ namespace UniChat_BackEnd.Hubs
             }
         }
 
-
         public async Task LeaveRoom(int roomId)
         {
-            var userId = Context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-            
-            if (userId == null)
+            try
             {
-                await Clients.Caller.SendAsync("UserNotFound", "User not found");
-                return;
-            }
+                var (userId, user) = await GetUserInfo();
+                if (user == null) return;
 
-            UserDto user = _userService.GetUserById(int.Parse(userId));
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, roomId.ToString());
 
-            if (user == null)
+                bool removed = _chatRoomService.RemoveUserFromChatRoom(roomId, userId);
+
+                if (!removed)
+                {
+                    await Clients.Caller.SendAsync("ErrorRemovingUserFromChatRoom", "Error removing user from chat room");
+                    return;
+                }
+
+                await Clients.Group(roomId.ToString()).SendAsync("UserLeft", user.Username);
+            } catch (Exception ex)
             {
-                await Clients.Caller.SendAsync("UserNotFound", "User not found");
-                return;
+                Console.WriteLine("Exception in LeaveRoom: " + ex.Message);
+                Console.WriteLine(ex.StackTrace);
+                await Clients.Caller.SendAsync("Error", "Unexpected error: " + ex.Message);
             }
-
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, roomId.ToString());
-
-            bool removed = _chatRoomService.RemoveUserFromChatRoom(roomId, int.Parse(userId));
-
-            if (!removed)
-            {
-                await Clients.Caller.SendAsync("ErrorRemovingUserFromChatRoom", "Error removing user from chat room");
-                return;
-            }
-
-            await Clients.Group(roomId.ToString()).SendAsync("UserLeft", user.Username);
         }
     }
 }
