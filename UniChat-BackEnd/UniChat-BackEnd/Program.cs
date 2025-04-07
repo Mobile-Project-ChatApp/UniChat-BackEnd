@@ -8,7 +8,6 @@ using UniChat_BackEnd.Hubs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using UniChat_DAL.Repositories;
 
 
 var builder = WebApplication.CreateBuilder(args);

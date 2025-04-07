@@ -28,7 +28,7 @@ public class AnnouncementController : ControllerBase
         if (!int.TryParse(userIdClaim.Value, out int requestId))
             return BadRequest("Invalid user ID");
 
-        var announcements = await _announcementService.GetAllAnnouncementsByChatroom(chatroomId, requestId);
+        List<AnnouncementDto> announcements = await _announcementService.GetAllAnnouncementsByChatroom(chatroomId, requestId);
         return Ok(announcements);
     }
 
@@ -42,7 +42,7 @@ public class AnnouncementController : ControllerBase
         if (!int.TryParse(userIdClaim.Value, out int requestId))
             return BadRequest("Invalid user ID");
 
-        var announcements = await _announcementService.GetImportantAnnouncementsByChatroomAsync(chatroomId, requestId);
+        List<AnnouncementDto> announcements = await _announcementService.GetImportantAnnouncementsByChatroomAsync(chatroomId, requestId);
         return Ok(announcements);
     }
 
@@ -56,7 +56,7 @@ public class AnnouncementController : ControllerBase
         if (!int.TryParse(userIdClaim.Value, out int requestId))
             return BadRequest("Invalid user ID");
 
-        var announcements = await _announcementService.GetRecentAnnouncementsByChatroomAsync(chatroomId, requestId);
+        List<AnnouncementDto> announcements = await _announcementService.GetRecentAnnouncementsByChatroomAsync(chatroomId, requestId);
         return Ok(announcements);
     }
 
@@ -73,7 +73,7 @@ public class AnnouncementController : ControllerBase
 
         announcementDto.SenderId = senderId;
 
-        var result = _announcementService.CreateAnnouncement(announcementDto);
+        bool result = _announcementService.CreateAnnouncement(announcementDto);
         return Ok(result);
     }
 
@@ -122,7 +122,7 @@ public class AnnouncementController : ControllerBase
         if (announcement.SenderId != senderId)
             return Forbid();
 
-        var result = _announcementService.DeleteAnnouncement(id);
+        bool result = _announcementService.DeleteAnnouncement(id);
         if (result)
             return Ok("Announcement deleted successfully.");
         else
@@ -136,10 +136,14 @@ public class AnnouncementController : ControllerBase
         Claim? userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
         if (userIdClaim == null)
             return Unauthorized();
+
         if (!int.TryParse(userIdClaim.Value, out int userId))
             return BadRequest("Invalid user ID");
+
         markAnnouncementAsReadDto.UserId = userId;
+
         await _announcementService.MarkAnnouncementAsReadAsync(markAnnouncementAsReadDto.AnnouncementId, userId);
+
         return Ok("Announcement marked as read.");
     }
 

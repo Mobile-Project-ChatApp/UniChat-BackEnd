@@ -5,7 +5,7 @@ using UniChat_BLL.Dto;
 using UniChat_BLL.Interfaces;
 using System.Linq.Expressions;
 
-namespace UniChat_DAL.Repositories
+namespace UniChat_DAL
 {
     public class AnnouncementRepository : IAnnouncementRepository
     {
@@ -135,7 +135,7 @@ namespace UniChat_DAL.Repositories
 
         public async Task<List<AnnouncementDto>> GetRecentAnnouncementsByChatroomAsync(int chatroom, int requestId, int days = 7)
         {
-            var cutoffDate = DateTime.UtcNow.AddDays(-days);
+            DateTime cutoffDate = DateTime.UtcNow.AddDays(-days);
             return await _context.Announcements.Where(a => a.DateCreated >= cutoffDate)
                 .Where(a => a.ChatroomId == chatroom)
                 .OrderByDescending(a => a.DateCreated)
@@ -178,7 +178,7 @@ namespace UniChat_DAL.Repositories
 
         public bool CreateAnnouncement(CreateAnnouncementDto announcementDto)
         {
-            var announcement = new AnnouncementEntity
+            AnnouncementEntity announcement = new AnnouncementEntity
             {
                 SenderId = announcementDto.SenderId,
                 ChatroomId = announcementDto.ChatroomId,
@@ -194,7 +194,7 @@ namespace UniChat_DAL.Repositories
 
         public bool DeleteAnnouncement(int id)
         {
-            var announcement = _context.Announcements.Find(id);
+            AnnouncementEntity? announcement = _context.Announcements.Find(id);
             if (announcement == null)
             {
                 return false;
@@ -231,7 +231,7 @@ namespace UniChat_DAL.Repositories
 
         public async Task MarkAnnouncementAsReadAsync(int announcementId, int userId)
         {
-            var interaction = await _context.UserAnnouncementInteractions
+            UserAnnouncementInteraction? interaction = await _context.UserAnnouncementInteractions
                 .FirstOrDefaultAsync(x => x.AnnouncementId == announcementId && x.UserId == userId);
             if (interaction == null)
             {
