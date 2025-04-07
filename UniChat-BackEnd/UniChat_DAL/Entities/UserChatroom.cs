@@ -1,6 +1,6 @@
 ﻿namespace UniChat_DAL.Entities;
 
-public class UserChatrooms
+public class UserChatroom
 {
     public int UserId { get; set; }
     public UserEntity User { get; set; }

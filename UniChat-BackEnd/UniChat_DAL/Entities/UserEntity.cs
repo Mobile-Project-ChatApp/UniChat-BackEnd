@@ -12,5 +12,5 @@ public class UserEntity
     public string? RefreshToken { get; set; }
     public DateTime? RefreshTokenExpiry { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.Now;
-    public List<UserChatrooms> UserChatrooms { get; set; }
+    public List<UserChatroom> UserChatroom { get; set; }
 }
