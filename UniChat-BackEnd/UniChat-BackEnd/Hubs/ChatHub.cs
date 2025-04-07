@@ -23,7 +23,7 @@ namespace UniChat_BackEnd.Hubs
 
         private async Task<(int userId, UserDto user)> GetUserInfo()
         {
-            var userIdStr = Context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            string userIdStr = Context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             
             if (userIdStr == null)
             {
@@ -31,8 +31,8 @@ namespace UniChat_BackEnd.Hubs
                 return (0, null);
             }
 
-            var userId = int.Parse(userIdStr);
-            var user = _userService.GetUserById(userId);
+            int userId = int.Parse(userIdStr);
+            UserDto user = _userService.GetUserById(userId);
 
             if (user == null)
             {
@@ -54,7 +54,7 @@ namespace UniChat_BackEnd.Hubs
 
         public async Task SendMessage(int roomId, string message)
         {
-            var (userId, user) = await GetUserInfo();
+            (int userId, UserDto user) = await GetUserInfo();
             if (user == null) return;
 
             MessageDto savedMessage = _messageService.SendMessage(roomId, userId, message);
@@ -72,7 +72,7 @@ namespace UniChat_BackEnd.Hubs
         {
             try
             {
-                var (userId, user) = await GetUserInfo();
+                (int userId, UserDto user) = await GetUserInfo();
                 if (user == null) return;
 
                 await Groups.AddToGroupAsync(Context.ConnectionId, roomId.ToString());
@@ -98,7 +98,7 @@ namespace UniChat_BackEnd.Hubs
         {
             try
             {
-                var (userId, user) = await GetUserInfo();
+                (int userId, UserDto user) = await GetUserInfo();
                 if (user == null) return;
 
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, roomId.ToString());
