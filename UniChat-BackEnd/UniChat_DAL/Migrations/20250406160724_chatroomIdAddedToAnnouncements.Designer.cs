@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UniChat_DAL.Data;
@@ -11,9 +12,11 @@ using UniChat_DAL.Data;
 namespace UniChat_DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250406160724_chatroomIdAddedToAnnouncements")]
+    partial class chatroomIdAddedToAnnouncements
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -87,6 +90,27 @@ namespace UniChat_DAL.Migrations
                     b.ToTable("ChatRooms");
                 });
 
+            modelBuilder.Entity("UniChat_DAL.Entities.ChatroomUser", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ChatRoomId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsAdmin")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("JoinedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("UserId", "ChatRoomId");
+
+                    b.HasIndex("ChatRoomId");
+
+                    b.ToTable("UserChatrooms");
+                });
+
             modelBuilder.Entity("UniChat_DAL.Entities.Message", b =>
                 {
                     b.Property<int>("Id")
@@ -142,27 +166,6 @@ namespace UniChat_DAL.Migrations
                     b.HasIndex("AnnouncementId");
 
                     b.ToTable("UserAnnouncementInteractions");
-                });
-
-            modelBuilder.Entity("UniChat_DAL.Entities.UserChatroom", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ChatRoomId")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsAdmin")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime>("JoinedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("UserId", "ChatRoomId");
-
-                    b.HasIndex("ChatRoomId");
-
-                    b.ToTable("UserChatrooms");
                 });
 
             modelBuilder.Entity("UniChat_DAL.Entities.UserEntity", b =>
@@ -227,6 +230,25 @@ namespace UniChat_DAL.Migrations
                     b.Navigation("Sender");
                 });
 
+            modelBuilder.Entity("UniChat_DAL.Entities.ChatroomUser", b =>
+                {
+                    b.HasOne("UniChat_DAL.Entities.ChatRoom", "ChatRoom")
+                        .WithMany("ChatroomsUser")
+                        .HasForeignKey("ChatRoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("UniChat_DAL.Entities.UserEntity", "User")
+                        .WithMany("ChatroomsUser")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ChatRoom");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("UniChat_DAL.Entities.Message", b =>
                 {
                     b.HasOne("UniChat_DAL.Entities.ChatRoom", "ChatRoom")
@@ -265,25 +287,6 @@ namespace UniChat_DAL.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("UniChat_DAL.Entities.UserChatroom", b =>
-                {
-                    b.HasOne("UniChat_DAL.Entities.ChatRoom", "ChatRoom")
-                        .WithMany("UserChatrooms")
-                        .HasForeignKey("ChatRoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("UniChat_DAL.Entities.UserEntity", "User")
-                        .WithMany("UserChatrooms")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ChatRoom");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("UniChat_DAL.Entities.AnnouncementEntity", b =>
                 {
                     b.Navigation("UserInteractions");
@@ -293,14 +296,14 @@ namespace UniChat_DAL.Migrations
                 {
                     b.Navigation("Announcements");
 
-                    b.Navigation("Messages");
+                    b.Navigation("ChatroomsUser");
 
-                    b.Navigation("UserChatrooms");
+                    b.Navigation("Messages");
                 });
 
             modelBuilder.Entity("UniChat_DAL.Entities.UserEntity", b =>
                 {
-                    b.Navigation("UserChatrooms");
+                    b.Navigation("ChatroomsUser");
                 });
 #pragma warning restore 612, 618
         }

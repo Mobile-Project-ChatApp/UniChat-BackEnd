@@ -8,5 +8,6 @@ namespace UniChat_DAL.Entities
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public List<Message> Messages { get; set; }
         public List<UserChatroom> UserChatrooms { get; set; }
+        public List<AnnouncementEntity> Announcements { get; set; }
     }
 }
