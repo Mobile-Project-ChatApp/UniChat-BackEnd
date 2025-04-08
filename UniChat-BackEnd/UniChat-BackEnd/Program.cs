@@ -149,4 +149,5 @@ app.MapControllers();
 
 app.MapHub<ChatHub>("/chatHub");
 
+app.Urls.Add("http://*:5222");
 app.Run();

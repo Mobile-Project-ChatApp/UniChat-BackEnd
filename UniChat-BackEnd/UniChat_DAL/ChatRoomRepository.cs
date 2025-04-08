@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using UniChat_BLL.Dto;
 using UniChat_BLL.Interfaces;
 using UniChat_DAL.Data;
@@ -27,17 +28,34 @@ public class ChatRoomRepository : IChatRoomRepository
 
     public ChatRoomDto GetChatRoomById(int id)
     {
-      ChatRoom? chatRoom = _context.ChatRooms.Find(id);
-      if (chatRoom == null)
-      {
-        throw new Exception("Chat room not found");
-      }
-      return new ChatRoomDto() {
-        Id = chatRoom.Id,
-        Name = chatRoom.Name,
-        Description = chatRoom.Description,
-        CreatedAt = chatRoom.CreatedAt
-      };
+        ChatRoom? chatRoom = _context.ChatRooms
+            .Include(c => c.Messages)
+            .Include(c => c.UserChatrooms)
+                .ThenInclude(uc => uc.User)
+            .FirstOrDefault(c => c.Id == id);
+        
+        if (chatRoom == null)
+        {
+            throw new Exception("Chat room not found");
+        }
+
+        return new ChatRoomDto
+        {
+            Id = chatRoom.Id,
+            Name = chatRoom.Name,
+            Description = chatRoom.Description,
+            CreatedAt = chatRoom.CreatedAt,
+            Messages = chatRoom.Messages.Select(m => new MessageDto
+            {
+                Id = m.Id,
+                MessageText = m.MessageText,
+            }).ToList(),
+            Members = chatRoom.UserChatrooms.Select(uc => new UserDto
+            {
+                Id = uc.UserId,
+                Username = uc.User.Username
+            }).ToList()
+        };
     }
 
     public bool CreateChatRoom(CreateEditChatRoomDto chatRoomDto)
