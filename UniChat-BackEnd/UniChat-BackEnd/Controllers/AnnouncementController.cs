@@ -73,7 +73,7 @@ public class AnnouncementController : ControllerBase
 
         announcementDto.SenderId = senderId;
 
-        bool result = _announcementService.CreateAnnouncement(announcementDto);
+        Task<bool> result = _announcementService.CreateAnnouncementAsync(announcementDto);
         return Ok(result);
     }
 
@@ -95,7 +95,7 @@ public class AnnouncementController : ControllerBase
         if (announcement.SenderId != senderId)
             return Forbid();
 
-        bool result = _announcementService.UpdateAnnouncement(announcementDto, id);
+        bool result = await _announcementService.UpdateAnnouncement(announcementDto, id);
         if (result)
             return Ok(announcement);
         else
@@ -122,7 +122,7 @@ public class AnnouncementController : ControllerBase
         if (announcement.SenderId != senderId)
             return Forbid();
 
-        bool result = _announcementService.DeleteAnnouncement(id);
+        bool result = await _announcementService.DeleteAnnouncement(id);
         if (result)
             return Ok("Announcement deleted successfully.");
         else

@@ -16,195 +16,147 @@ namespace UniChat_DAL
             _context = context;
         }
 
-        public Task<AnnouncementDto?> GetAnnouncementById(int id, int requestId)
+        private static Expression<Func<AnnouncementEntity, int, AnnouncementDto>> ToDtoWithInteractions =>
+        (a, requestId) => new AnnouncementDto
         {
-            return _context.Announcements
+            Id = a.Id,
+            SenderId = a.SenderId,
+            ChatroomId = a.ChatroomId,
+            Title = a.Title,
+            Content = a.Content,
+            DateCreated = a.DateCreated,
+            Important = a.Important,
+            Sender = a.Sender != null ? new UserDto
+            {
+                Id = a.Sender.Id,
+                Username = a.Sender.Username,
+                Email = a.Sender.Email
+            } : null,
+            Chatroom = a.Chatroom != null ? new ChatRoomDto
+            {
+                Id = a.Chatroom.Id,
+                Name = a.Chatroom.Name
+            } : null,
+            UserInteractions = a.UserInteractions
+                .Where(ui => ui.UserId == requestId)
+                .OrderByDescending(ui => ui.SavedAt ?? ui.ReadAt)
+                .Select(ui => new UserAnnouncementInteractionDto
+                {
+                    UserId = ui.UserId,
+                    AnnouncementId = ui.AnnouncementId,
+                    IsRead = ui.IsRead,
+                    IsSaved = ui.IsSaved,
+                    ReadAt = ui.ReadAt,
+                    SavedAt = ui.SavedAt
+                }).ToList()
+        };
+
+        public async Task<AnnouncementDto?> GetAnnouncementById(int id, int requestId)
+        {
+            AnnouncementEntity? announcement = await _context.Announcements
                 .Where(a => a.Id == id)
-                .Select(a => new AnnouncementDto
-                {
-                    Id = a.Id,
-                    SenderId = a.SenderId,
-                    ChatroomId = a.ChatroomId,
-                    Title = a.Title,
-                    Content = a.Content,
-                    DateCreated = a.DateCreated,
-                    Important = a.Important,
-                    Sender = a.Sender != null ? new UserDto
-                    {
-                        Id = a.Sender.Id,
-                        Username = a.Sender.Username,
-                        Email = a.Sender.Email
-                    } : null,
-                    Chatroom = a.Chatroom != null ? new ChatRoomDto
-                    {
-                        Id = a.Chatroom.Id,
-                        Name = a.Chatroom.Name,
-                    } : null
-                })
+                .Include(a => a.Sender)
+                .Include(a => a.Chatroom)
+                .Include(a => a.UserInteractions)
                 .FirstOrDefaultAsync();
+
+            if (announcement == null) return null;
+
+            return ToDtoWithInteractions.Compile().Invoke(announcement, requestId);
         }
 
-        public Task<List<AnnouncementDto>> GetAllAnnouncementsByChatroom(int chatroom, int requestId)
+
+        public async Task<List<AnnouncementDto>> GetAllAnnouncementsByChatroom(int chatroom, int requestId)
         {
-            return _context.Announcements
-                .OrderByDescending(a => a.DateCreated)
+            List<AnnouncementEntity> announcements = await _context.Announcements
                 .Where(a => a.ChatroomId == chatroom)
-                .Select(a => new AnnouncementDto
-                {
-                    Id = a.Id,
-                    SenderId = a.SenderId,
-                    ChatroomId = a.ChatroomId,
-                    Title = a.Title,
-                    Content = a.Content,
-                    DateCreated = a.DateCreated,
-                    Important = a.Important,
-                    Sender = a.Sender != null ? new UserDto
-                    {
-                        Id = a.Sender.Id,
-                        Username = a.Sender.Username,
-                        Email = a.Sender.Email
-                    } : null,
-                    Chatroom = a.Chatroom != null ? new ChatRoomDto
-                    {
-                        Id = a.Chatroom.Id,
-                        Name = a.Chatroom.Name,
-                    } : null,
-                    UserInteractions = a.UserInteractions
-                        .OrderByDescending(ui => ui.SavedAt ?? ui.ReadAt)
-                        .Where(ui => ui.AnnouncementId == a.Id)
-                        .Where(ui => ui.UserId == requestId)
-                        .Select(ui => new UserAnnouncementInteractionDto
-                        {
-                            UserId = ui.UserId,
-                            AnnouncementId = ui.AnnouncementId,
-                            IsRead = ui.IsRead,
-                            IsSaved = ui.IsSaved,
-                            ReadAt = ui.ReadAt,
-                            SavedAt = ui.SavedAt
-                        })
-                        .ToList()
-                })
+                .OrderByDescending(a => a.DateCreated)
+                .Include(a => a.Sender)
+                .Include(a => a.Chatroom)
+                .Include(a => a.UserInteractions)
                 .ToListAsync();
+
+            Func<AnnouncementEntity, int, AnnouncementDto> projection = ToDtoWithInteractions.Compile();
+
+            List<AnnouncementDto> dtos = announcements
+            .Select(a => projection(a, requestId))
+            .ToList();
+
+            return dtos;
         }
-
-
 
         public async Task<List<AnnouncementDto>> GetImportantAnnouncementsByChatroomAsync(int chatroom, int requestId)
         {
-            return await _context.Announcements.Where(a => a.Important)
-                .Where(a => a.ChatroomId == chatroom)
+            List<AnnouncementEntity> announcements = await _context.Announcements
+                .Where(a => a.ChatroomId == chatroom && a.Important)
                 .OrderByDescending(a => a.DateCreated)
-                .Select(a => new AnnouncementDto
-                {
-                    Id = a.Id,
-                    SenderId = a.SenderId,
-                    ChatroomId = a.ChatroomId,
-                    Title = a.Title,
-                    Content = a.Content,
-                    DateCreated = a.DateCreated,
-                    Important = a.Important,
-                    Sender = a.Sender!= null ? new UserDto
-                    {
-                        Id = a.Sender.Id,
-                        Username = a.Sender.Username,
-                        Email = a.Sender.Email
-                    } : null,
-                    Chatroom = a.Chatroom != null ? new ChatRoomDto
-                    {
-                        Id = a.Chatroom.Id,
-                        Name = a.Chatroom.Name,
-                    } : null,
-                    UserInteractions = a.UserInteractions
-                        .OrderByDescending(ui => ui.SavedAt ?? ui.ReadAt)
-                        .Where(ui => ui.AnnouncementId == a.Id)
-                        .Select(ui => new UserAnnouncementInteractionDto
-                        {
-                            UserId = ui.UserId,
-                            AnnouncementId = ui.AnnouncementId,
-                            IsRead = ui.IsRead,
-                            IsSaved = ui.IsSaved,
-                            ReadAt = ui.ReadAt,
-                            SavedAt = ui.SavedAt
-                        })
-                        .ToList()
+                .Include(a => a.Sender)
+                .Include(a => a.Chatroom)
+                .Include(a => a.UserInteractions)
+                .ToListAsync();
 
-                })
-                .ToListAsync(); 
+            Func<AnnouncementEntity, int, AnnouncementDto> projection = ToDtoWithInteractions.Compile();
+
+            List<AnnouncementDto> dtos = announcements
+            .Select(a => projection(a, requestId))
+            .ToList();
+
+            return dtos;
+
         }
 
 
         public async Task<List<AnnouncementDto>> GetRecentAnnouncementsByChatroomAsync(int chatroom, int requestId, int days = 7)
         {
             DateTime cutoffDate = DateTime.UtcNow.AddDays(-days);
-            return await _context.Announcements.Where(a => a.DateCreated >= cutoffDate)
-                .Where(a => a.ChatroomId == chatroom)
+            List<AnnouncementEntity> announcements = await _context.Announcements
+                .Where(a => a.ChatroomId == chatroom && a.DateCreated >= cutoffDate)
                 .OrderByDescending(a => a.DateCreated)
-                .Select(a => new AnnouncementDto
-                {
-                    Id = a.Id,
-                    SenderId = a.SenderId,
-                    ChatroomId = a.ChatroomId,
-                    Title = a.Title,
-                    Content = a.Content,
-                    DateCreated = a.DateCreated,
-                    Important = a.Important,
-                    Sender = a.Sender != null ? new UserDto
-                    {
-                        Id = a.Sender.Id,
-                        Username = a.Sender.Username,
-                        Email = a.Sender.Email
-                    } : null,
-                    Chatroom = a.Chatroom != null ? new ChatRoomDto
-                    {
-                        Id = a.Chatroom.Id,
-                        Name = a.Chatroom.Name,
-                    } : null,
-                    UserInteractions = a.UserInteractions
-                        .OrderByDescending(ui => ui.SavedAt ?? ui.ReadAt)
-                        .Where(ui => ui.AnnouncementId == a.Id)
-                        .Select(ui => new UserAnnouncementInteractionDto
-                        {
-                            UserId = ui.UserId,
-                            AnnouncementId = ui.AnnouncementId,
-                            IsRead = ui.IsRead,
-                            IsSaved = ui.IsSaved,
-                            ReadAt = ui.ReadAt,
-                            SavedAt = ui.SavedAt
-                        })
-                        .ToList()
-                })
+                .Include(a => a.Sender)
+                .Include(a => a.Chatroom)
+                .Include(a => a.UserInteractions)
                 .ToListAsync();
+
+            Func<AnnouncementEntity, int, AnnouncementDto> projection = ToDtoWithInteractions.Compile();
+
+            List<AnnouncementDto> dtos = announcements
+                .Select(a => projection(a, requestId))
+                .ToList();
+
+            return dtos;
         }
 
-        public bool CreateAnnouncement(CreateAnnouncementDto announcementDto)
+        public async Task<bool> CreateAnnouncementAsync(CreateAnnouncementDto dto)
         {
-            AnnouncementEntity announcement = new AnnouncementEntity
+            _context.Announcements.Add(new AnnouncementEntity
             {
-                SenderId = announcementDto.SenderId,
-                ChatroomId = announcementDto.ChatroomId,
-                Title = announcementDto.Title,
-                Content = announcementDto.Content,
+                SenderId = dto.SenderId,
+                ChatroomId = dto.ChatroomId,
+                Title = dto.Title,
+                Content = dto.Content,
                 DateCreated = DateTime.UtcNow,
-                Important = announcementDto.Important
-            };
-            _context.Announcements.Add(announcement);
-            _context.SaveChanges();
+                Important = dto.Important
+            });
+            await _context.SaveChangesAsync();
             return true;
         }
 
-        public bool DeleteAnnouncement(int id)
+
+        public async Task<bool> DeleteAnnouncement(int id)
         {
             AnnouncementEntity? announcement = _context.Announcements.Find(id);
+
             if (announcement == null)
             {
                 return false;
             }
+
             _context.Announcements.Remove(announcement);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return true;
         }
 
-        public bool UpdateAnnouncement(EditAnnouncementDto announcementDto, int id)
+        public async Task<bool> UpdateAnnouncement(EditAnnouncementDto announcementDto, int id)
         {
             try
             {
@@ -218,7 +170,7 @@ namespace UniChat_DAL
                 announcement.Content = announcementDto.Content;
                 announcement.Important = announcementDto.Important;
                 
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return true;
             }
             catch (Exception e)

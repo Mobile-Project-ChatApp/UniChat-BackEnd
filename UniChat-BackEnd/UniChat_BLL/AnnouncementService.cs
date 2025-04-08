@@ -27,18 +27,18 @@ public class AnnouncementService
         return await _announcementRepository.GetRecentAnnouncementsByChatroomAsync(chatroom, requestId, 7);
     }
 
-    public bool CreateAnnouncement(CreateAnnouncementDto announcementDto)
+    public Task<bool> CreateAnnouncementAsync(CreateAnnouncementDto announcementDto)
     {
-        return _announcementRepository.CreateAnnouncement(announcementDto);
+        return _announcementRepository.CreateAnnouncementAsync(announcementDto);
 
     }
 
-    public bool UpdateAnnouncement(EditAnnouncementDto announcementDto, int id)
+    public Task<bool> UpdateAnnouncement(EditAnnouncementDto announcementDto, int id)
     {
         return _announcementRepository.UpdateAnnouncement(announcementDto, id);
     }
 
-    public bool DeleteAnnouncement(int id)
+    public Task<bool> DeleteAnnouncement(int id)
     {
         return _announcementRepository.DeleteAnnouncement(id);
     }
