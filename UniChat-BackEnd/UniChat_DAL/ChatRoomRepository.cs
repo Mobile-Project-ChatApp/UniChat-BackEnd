@@ -27,7 +27,7 @@ public class ChatRoomRepository : IChatRoomRepository
 
     public ChatRoomDto GetChatRoomById(int id)
     {
-      var chatRoom = _context.ChatRooms.Find(id);
+      ChatRoom? chatRoom = _context.ChatRooms.Find(id);
       if (chatRoom == null)
       {
         throw new Exception("Chat room not found");
@@ -42,7 +42,7 @@ public class ChatRoomRepository : IChatRoomRepository
 
     public bool CreateChatRoom(CreateEditChatRoomDto chatRoomDto)
     {
-        var chatRoom = new ChatRoom
+        ChatRoom? chatRoom = new ChatRoom
         {
             Name = chatRoomDto.Name,
             Description = chatRoomDto.Description
@@ -56,7 +56,7 @@ public class ChatRoomRepository : IChatRoomRepository
 
     public bool UpdateChatRoom(int id, CreateEditChatRoomDto chatRoomDto)
     {
-        var chatRoom = _context.ChatRooms.Find(id);
+        ChatRoom? chatRoom = _context.ChatRooms.Find(id);
         if (chatRoom == null)
         {
             throw new Exception("Chat room not found");
@@ -72,7 +72,7 @@ public class ChatRoomRepository : IChatRoomRepository
 
     public bool DeleteChatRoom(int id)
     {
-        var chatRoom = _context.ChatRooms.Find(id);
+        ChatRoom? chatRoom = _context.ChatRooms.Find(id);
         if (chatRoom == null)
         {
             throw new Exception("Chat room not found");
@@ -86,7 +86,7 @@ public class ChatRoomRepository : IChatRoomRepository
 
     public bool AddUserToChatRoom(int chatRoomId, int userId)
     {
-        var chatRoom = _context.ChatRooms.Find(chatRoomId);
+        ChatRoom? chatRoom = _context.ChatRooms.Find(chatRoomId);
         if (chatRoom == null)
         {
             throw new Exception("Chat room not found");
@@ -98,7 +98,7 @@ public class ChatRoomRepository : IChatRoomRepository
             throw new Exception("User not found");
         } 
 
-        chatRoom.UserChatrooms.Add(new UserChatroom { UserId = userId, ChatRoomId = chatRoomId });
+        _context.UserChatrooms.Add(new UserChatroom { UserId = userId, ChatRoomId = chatRoomId });
         _context.SaveChanges();
 
         return true;
@@ -106,7 +106,7 @@ public class ChatRoomRepository : IChatRoomRepository
 
     public bool RemoveUserFromChatRoom(int chatRoomId, int userId)
     {
-        var chatRoom = _context.ChatRooms.Find(chatRoomId);
+        ChatRoom? chatRoom = _context.ChatRooms.Find(chatRoomId);
         if (chatRoom == null)
         {
             throw new Exception("Chat room not found");

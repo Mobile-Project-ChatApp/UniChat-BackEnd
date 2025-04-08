@@ -1,10 +1,13 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using UniChat_BLL;
 using UniChat_BLL.Dto;
 
 namespace UniChat_BackEnd.Hubs
 {
+    [Authorize]
     public class ChatHub : Hub
     {
         private readonly MessageService _messageService;
@@ -18,24 +21,103 @@ namespace UniChat_BackEnd.Hubs
             _userService = userService;
         }
 
-        // TODO: Add user id to the message
+        private async Task<(int userId, UserDto user)> GetUserInfo()
+        {
+            string userIdStr = Context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            
+            if (userIdStr == null)
+            {
+                await Clients.Caller.SendAsync("UserNotFound", "User not found");
+                return (0, null);
+            }
+
+            int userId = int.Parse(userIdStr);
+            UserDto user = _userService.GetUserById(userId);
+
+            if (user == null)
+            {
+                await Clients.Caller.SendAsync("UserNotFound", "User not found");
+                return (0, null);
+            }
+
+            return (userId, user);
+        }
+
+        private MinimalUserDto CreateMinimalUserDto(UserDto user)
+        {
+            return new MinimalUserDto
+            {
+                Id = user.Id,
+                Username = user.Username
+            };
+        }
+
         public async Task SendMessage(int roomId, string message)
         {
-            MessageDto savedMessage = _messageService.SendMessage(roomId, 1, message);
-            
+            (int userId, UserDto user) = await GetUserInfo();
+            if (user == null) return;
+
+            MessageDto savedMessage = _messageService.SendMessage(roomId, userId, message);
+
+            if (savedMessage == null)
+            {   
+                await Clients.Caller.SendAsync("ErrorSendingMessage", "Error sending message");
+                return;
+            }
+
             await Clients.Group(roomId.ToString()).SendAsync("ReceiveMessage", savedMessage);
         }
 
         public async Task JoinRoom(int roomId)
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, roomId.ToString());
-            
-            await Clients.Group(roomId.ToString()).SendAsync("UserJoined", Context.User.Identity.Name);
+            try
+            {
+                (int userId, UserDto user) = await GetUserInfo();
+                if (user == null) return;
+
+                await Groups.AddToGroupAsync(Context.ConnectionId, roomId.ToString());
+
+                bool added = _chatRoomService.AddUserToChatRoom(roomId, userId);
+
+                if (!added)
+                {
+                    await Clients.Caller.SendAsync("ErrorAddingUserToChatRoom", "Error adding user to chat room");
+                    return;
+                }
+
+                await Clients.Group(roomId.ToString()).SendAsync("UserJoined", CreateMinimalUserDto(user));
+            } catch (Exception ex)
+            {
+                Console.WriteLine("Exception in JoinRoom: " + ex.Message);
+                Console.WriteLine(ex.StackTrace);
+                await Clients.Caller.SendAsync("Error", "Unexpected error: " + ex.Message);
+            }
         }
 
         public async Task LeaveRoom(int roomId)
         {
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, roomId.ToString());
+            try
+            {
+                (int userId, UserDto user) = await GetUserInfo();
+                if (user == null) return;
+
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, roomId.ToString());
+
+                bool removed = _chatRoomService.RemoveUserFromChatRoom(roomId, userId);
+
+                if (!removed)
+                {
+                    await Clients.Caller.SendAsync("ErrorRemovingUserFromChatRoom", "Error removing user from chat room");
+                    return;
+                }
+
+                await Clients.Group(roomId.ToString()).SendAsync("UserLeft", user.Username);
+            } catch (Exception ex)
+            {
+                Console.WriteLine("Exception in LeaveRoom: " + ex.Message);
+                Console.WriteLine(ex.StackTrace);
+                await Clients.Caller.SendAsync("Error", "Unexpected error: " + ex.Message);
+            }
         }
     }
 }

@@ -34,7 +34,8 @@ builder.Services.AddCors(options =>
                 "http://192.168.1.104:5222",
                 "http://192.168.1.104:3000",
                 "http://192.168.1.104:19000",
-                "http://192.168.1.104:19006"
+                "http://192.168.1.104:19006",
+                "http://127.0.0.1:5500"
             )
             .AllowAnyMethod()
             .AllowAnyHeader()
@@ -51,6 +52,8 @@ builder.Services.AddScoped<IChatRoomRepository, ChatRoomRepository>();
 builder.Services.AddScoped<ChatRoomService>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<MessageService>();
+builder.Services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
+builder.Services.AddScoped<AnnouncementService>();
 builder.Services.AddScoped<AuthService>();
 
 builder.Services.AddControllers();
@@ -96,6 +99,21 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = jwtSettings["Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
     };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chatHub"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
 
 var app = builder.Build();
@@ -131,7 +149,4 @@ app.MapControllers();
 
 app.MapHub<ChatHub>("/chatHub");
 
-app.Urls.Clear(); // Clear any default URLs
-app.Urls.Add("http://*:5222");
-//app.Urls.Add("http://0.0.0.0:5222"); // Explicitly listen on all IPv4 interfaces
 app.Run();

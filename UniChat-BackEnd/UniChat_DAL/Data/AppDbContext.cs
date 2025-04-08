@@ -50,9 +50,9 @@ namespace UniChat_DAL.Data
                 .HasOne(m => m.ChatRoom)
                 .WithMany(c => c.Messages)
                 .HasForeignKey(m => m.ChatRoomId);
-                
+
             modelBuilder.Entity<UserAnnouncementInteraction>()
-                .HasKey(x => x.Id);
+                .HasKey(x => new { x.UserId, x.AnnouncementId });
 
             modelBuilder.Entity<UserAnnouncementInteraction>()
                 .HasOne(x => x.User)
@@ -67,10 +67,16 @@ namespace UniChat_DAL.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<AnnouncementEntity>()
-                .HasIndex(x => x.Date);
+                .HasIndex(x => x.DateCreated);
 
             modelBuilder.Entity<AnnouncementEntity>()
                 .HasIndex(x => x.Important);
+
+            modelBuilder.Entity<AnnouncementEntity>()
+                .HasOne(x => x.Chatroom)
+                .WithMany(x => x.Announcements)
+                .HasForeignKey(x => x.ChatroomId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

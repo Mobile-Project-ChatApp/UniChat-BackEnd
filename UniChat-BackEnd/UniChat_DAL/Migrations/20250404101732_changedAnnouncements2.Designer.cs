@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UniChat_DAL.Data;
@@ -11,9 +12,11 @@ using UniChat_DAL.Data;
 namespace UniChat_DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250404101732_changedAnnouncements2")]
+    partial class changedAnnouncements2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,9 +33,6 @@ namespace UniChat_DAL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ChatroomId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("text");
@@ -46,19 +46,20 @@ namespace UniChat_DAL.Migrations
                     b.Property<int>("SenderId")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("SenderUserId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ChatroomId");
-
                     b.HasIndex("DateCreated");
 
                     b.HasIndex("Important");
 
-                    b.HasIndex("SenderId");
+                    b.HasIndex("SenderUserId");
 
                     b.ToTable("Announcements");
                 });
@@ -125,6 +126,9 @@ namespace UniChat_DAL.Migrations
                     b.Property<int>("AnnouncementId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("IsRead")
                         .HasColumnType("boolean");
 
@@ -151,12 +155,6 @@ namespace UniChat_DAL.Migrations
 
                     b.Property<int>("ChatRoomId")
                         .HasColumnType("integer");
-
-                    b.Property<bool>("IsAdmin")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime>("JoinedAt")
-                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("UserId", "ChatRoomId");
 
@@ -210,21 +208,11 @@ namespace UniChat_DAL.Migrations
 
             modelBuilder.Entity("UniChat_DAL.Entities.AnnouncementEntity", b =>
                 {
-                    b.HasOne("UniChat_DAL.Entities.ChatRoom", "Chatroom")
-                        .WithMany("Announcements")
-                        .HasForeignKey("ChatroomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("UniChat_DAL.Entities.UserEntity", "Sender")
+                    b.HasOne("UniChat_DAL.Entities.UserEntity", "SenderUser")
                         .WithMany()
-                        .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SenderUserId");
 
-                    b.Navigation("Chatroom");
-
-                    b.Navigation("Sender");
+                    b.Navigation("SenderUser");
                 });
 
             modelBuilder.Entity("UniChat_DAL.Entities.Message", b =>
@@ -291,8 +279,6 @@ namespace UniChat_DAL.Migrations
 
             modelBuilder.Entity("UniChat_DAL.Entities.ChatRoom", b =>
                 {
-                    b.Navigation("Announcements");
-
                     b.Navigation("Messages");
 
                     b.Navigation("UserChatrooms");
