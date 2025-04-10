@@ -62,8 +62,11 @@ public class AnnouncementController : ControllerBase
 
     [HttpPost]
     [Authorize]
-    public IActionResult CreateAnnouncement(CreateAnnouncementDto announcementDto)
+    public async Task<IActionResult> CreateAnnouncement([FromBody] CreateAnnouncementDto announcementDto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
         Claim? userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
         if (userIdClaim == null)
             return Unauthorized();
@@ -73,8 +76,11 @@ public class AnnouncementController : ControllerBase
 
         announcementDto.SenderId = senderId;
 
-        Task<bool> result = _announcementService.CreateAnnouncementAsync(announcementDto);
-        return Ok(result);
+        bool result = await _announcementService.CreateAnnouncementAsync(announcementDto);
+        if (result)
+            return Ok("Announcement created successfully.");
+        else
+            return StatusCode(500, "Failed to create announcement.");
     }
 
     [HttpPut("{id}")]
