@@ -35,7 +35,11 @@ builder.Services.AddCors(options =>
                 "http://192.168.1.104:3000",
                 "http://192.168.1.104:19000",
                 "http://192.168.1.104:19006",
-                "http://127.0.0.1:5500"
+                "http://127.0.0.1:5500",
+                "http://127.0.0.1:5500",
+                "http://145.85.233.168",
+                "http://145.85.233.168:5222",
+                "http://localhost:8081"
             )
             .AllowAnyMethod()
             .AllowAnyHeader()
@@ -149,4 +153,5 @@ app.MapControllers();
 
 app.MapHub<ChatHub>("/chatHub");
 
+app.Urls.Add("http://*:5222");
 app.Run();
