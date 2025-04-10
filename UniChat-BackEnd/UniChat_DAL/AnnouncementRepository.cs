@@ -128,17 +128,25 @@ namespace UniChat_DAL
 
         public async Task<bool> CreateAnnouncementAsync(CreateAnnouncementDto dto)
         {
-            _context.Announcements.Add(new AnnouncementEntity
+            try
             {
-                SenderId = dto.SenderId,
-                ChatroomId = dto.ChatroomId,
-                Title = dto.Title,
-                Content = dto.Content,
-                DateCreated = DateTime.UtcNow,
-                Important = dto.Important
-            });
-            await _context.SaveChangesAsync();
-            return true;
+                _context.Announcements.Add(new AnnouncementEntity
+                {
+                    SenderId = dto.SenderId,
+                    ChatroomId = dto.ChatroomId,
+                    Title = dto.Title,
+                    Content = dto.Content,
+                    DateCreated = DateTime.UtcNow,
+                    Important = dto.Important
+                });
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in CreateAnnouncementAsync: {ex.Message}");
+                return false;
+            }
         }
 
 
@@ -160,49 +168,57 @@ namespace UniChat_DAL
         {
             try
             {
-                AnnouncementEntity? announcement = _context.Announcements.Find(id);
+                AnnouncementEntity? announcement = await _context.Announcements.FindAsync(id);
                 if (announcement == null)
                 {
-                    throw new Exception("Announcement not found");
+                    Console.WriteLine($"Announcement with ID {id} not found.");
+                    return false;
                 }
 
                 announcement.Title = announcementDto.Title;
                 announcement.Content = announcementDto.Content;
                 announcement.Important = announcementDto.Important;
-                
+
                 await _context.SaveChangesAsync();
                 return true;
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                throw new Exception("An error occurred while updating user", e);
+                Console.WriteLine($"Error updating announcement: {ex.Message}");
+                return false;
             }
-
-
         }
 
         public async Task MarkAnnouncementAsReadAsync(int announcementId, int userId)
         {
-            UserAnnouncementInteraction? interaction = await _context.UserAnnouncementInteractions
-                .FirstOrDefaultAsync(x => x.AnnouncementId == announcementId && x.UserId == userId);
-            if (interaction == null)
+            try
             {
-                interaction = new UserAnnouncementInteraction
-                {
-                    UserId = userId,
-                    AnnouncementId = announcementId,
-                    IsRead = true,
-                    ReadAt = DateTime.UtcNow
-                };
-                _context.UserAnnouncementInteractions.Add(interaction);
-            }
-            else
-            {
-                interaction.IsRead = true;
-                interaction.ReadAt = DateTime.UtcNow;
-            }
-            await _context.SaveChangesAsync();
+                UserAnnouncementInteraction? interaction = await _context.UserAnnouncementInteractions
+                    .FirstOrDefaultAsync(x => x.AnnouncementId == announcementId && x.UserId == userId);
 
+                if (interaction == null)
+                {
+                    interaction = new UserAnnouncementInteraction
+                    {
+                        UserId = userId,
+                        AnnouncementId = announcementId,
+                        IsRead = true,
+                        ReadAt = DateTime.UtcNow
+                    };
+                    _context.UserAnnouncementInteractions.Add(interaction);
+                }
+                else
+                {
+                    interaction.IsRead = true;
+                    interaction.ReadAt = DateTime.UtcNow;
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error marking announcement as read: {ex.Message}");
+            }
         }
     }
 }
