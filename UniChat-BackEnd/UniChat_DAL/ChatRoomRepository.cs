@@ -73,7 +73,15 @@ public class ChatRoomRepository : IChatRoomRepository
         ChatRoom? chatRoom = new ChatRoom
         {
             Name = chatRoomDto.Name,
-            Description = chatRoomDto.Description
+            Description = chatRoomDto.Description,
+            ChatRoomSemesters = chatRoomDto.ChatRoomSemesters.Select(cs => new ChatRoomSemester
+            {
+                Semester = cs.Semester,
+            }).ToList(),
+            ChatRoomStudies = chatRoomDto.ChatRoomStudies.Select(cs => new ChatRoomStudy
+            {
+                Study = cs.Study,
+            }).ToList(),
         };
 
         _context.ChatRooms.Add(chatRoom);
@@ -92,6 +100,14 @@ public class ChatRoomRepository : IChatRoomRepository
 
         chatRoom.Name = chatRoomDto.Name;
         chatRoom.Description = chatRoomDto.Description;
+        chatRoom.ChatRoomSemesters = chatRoomDto.ChatRoomSemesters.Select(cs => new ChatRoomSemester
+        {
+            Semester = cs.Semester,
+        }).ToList();
+        chatRoom.ChatRoomStudies = chatRoomDto.ChatRoomStudies.Select(cs => new ChatRoomStudy
+        {
+            Study = cs.Study,
+        }).ToList();
 
         _context.SaveChanges();
 
