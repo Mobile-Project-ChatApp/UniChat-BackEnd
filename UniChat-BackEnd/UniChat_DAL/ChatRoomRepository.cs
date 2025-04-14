@@ -32,6 +32,8 @@ public class ChatRoomRepository : IChatRoomRepository
             .Include(c => c.Messages)
             .Include(c => c.UserChatrooms)
                 .ThenInclude(uc => uc.User)
+            .Include(c => c.ChatRoomSemesters)
+            .Include(c => c.ChatRoomStudies)
             .FirstOrDefault(c => c.Id == id);
         
         if (chatRoom == null)
@@ -45,6 +47,14 @@ public class ChatRoomRepository : IChatRoomRepository
             Name = chatRoom.Name,
             Description = chatRoom.Description,
             CreatedAt = chatRoom.CreatedAt,
+            ChatRoomSemesters = chatRoom.ChatRoomSemesters.Select(cs => new ChatRoomSemesterDto
+            {
+                Semester = cs.Semester,
+            }).ToList(),
+            ChatRoomStudies = chatRoom.ChatRoomStudies.Select(cs => new ChatRoomStudyDto
+            {
+                Study = cs.Study,
+            }).ToList(),
             Messages = chatRoom.Messages.Select(m => new MessageDto
             {
                 Id = m.Id,

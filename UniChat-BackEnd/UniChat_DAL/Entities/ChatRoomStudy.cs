@@ -4,6 +4,6 @@ namespace UniChat_DAL.Entities
     {
         public int ChatRoomId { get; set; }
         public ChatRoom ChatRoom { get; set; }
-        public int Study { get; set; }
+        public string Study { get; set; }
     }
 }
