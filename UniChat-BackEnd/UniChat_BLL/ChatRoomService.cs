@@ -31,7 +31,7 @@ namespace UniChat_BLL
         {
           throw new ArgumentNullException(nameof(chatRoomDto), "Chat room DTO cannot be null");
         }
-        
+
         return _chatRoomRepository.CreateChatRoom(chatRoomDto);
       }
 
@@ -68,12 +68,9 @@ namespace UniChat_BLL
          
         if (chatRoom.ChatRoomSemesters != null && chatRoom.ChatRoomSemesters.Count > 0)
         {
-          foreach (var semester in chatRoom.ChatRoomSemesters)
+          if (!chatRoom.ChatRoomSemesters.Any(cs => cs.Semester == user.Semester))
           {
-            if (semester.Semester == user.Semester)
-            {
-              return false;
-            }
+            return false;
           }
         }
 
@@ -81,7 +78,7 @@ namespace UniChat_BLL
         {
           foreach (var study in chatRoom.ChatRoomStudies)
           {
-            if (study.Study == user.Study)
+            if (study.Study != user.Study)
             {
               return false;
             }
