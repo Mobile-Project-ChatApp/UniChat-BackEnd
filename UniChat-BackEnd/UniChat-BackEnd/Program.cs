@@ -78,20 +78,28 @@ builder.Services.AddAuthentication(options =>
 .AddJwtBearer(options =>
 {
     options.Events = new JwtBearerEvents
+{
+    OnMessageReceived = context =>
     {
-        OnMessageReceived = context =>
+        // 1. Check cookie
+        var cookieToken = context.Request.Cookies["jwt"];
+        if (!string.IsNullOrEmpty(cookieToken))
         {
-            // Check if JWT exists in the cookie
-            var accessToken = context.Request.Cookies["jwt"];
-
-            if (!string.IsNullOrEmpty(accessToken))
-            {
-                context.Token = accessToken;
-            }
-
-            return Task.CompletedTask;
+            context.Token = cookieToken;
         }
-    };
+
+        // 2. Optional: also support query token for SignalR or other use
+        var accessToken = context.Request.Query["access_token"];
+        var path = context.HttpContext.Request.Path;
+        if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chatHub"))
+        {
+            context.Token = accessToken;
+        }
+
+        return Task.CompletedTask;
+    }
+};
+
 
     options.RequireHttpsMetadata = false; // Set to true in production
     options.SaveToken = true;
@@ -104,21 +112,6 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = jwtSettings["Issuer"],
         ValidAudience = jwtSettings["Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
-    };
-
-    options.Events = new JwtBearerEvents
-    {
-        OnMessageReceived = context =>
-        {
-            var accessToken = context.Request.Query["access_token"];
-
-            var path = context.HttpContext.Request.Path;
-            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chatHub"))
-            {
-                context.Token = accessToken;
-            }
-            return Task.CompletedTask;
-        }
     };
 });
 
