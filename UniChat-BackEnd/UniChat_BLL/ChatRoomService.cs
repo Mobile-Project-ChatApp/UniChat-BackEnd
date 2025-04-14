@@ -47,14 +47,14 @@ namespace UniChat_BLL
 
       public bool AddUserToChatRoom(int chatRoomId, int userId)
       {
-        var chatRoom = _chatRoomRepository.GetChatRoomById(chatRoomId);
+        ChatRoomDto chatRoom = _chatRoomRepository.GetChatRoomById(chatRoomId);
 
         if (chatRoom == null)
         {
           throw new Exception("Chat room not found");
         }
 
-        var user = _userService.GetUserById(userId);
+        UserDto user = _userService.GetUserById(userId);
 
         if (user == null)
         {
@@ -76,7 +76,7 @@ namespace UniChat_BLL
 
         if (chatRoom.ChatRoomStudies != null && chatRoom.ChatRoomStudies.Count > 0)
         {
-          foreach (var study in chatRoom.ChatRoomStudies)
+          foreach (ChatRoomStudyDto study in chatRoom.ChatRoomStudies)
           {
             if (study.Study != user.Study)
             {
@@ -90,14 +90,14 @@ namespace UniChat_BLL
 
       public bool RemoveUserFromChatRoom(int chatRoomId, int userId)
       {
-        var chatRoom = _chatRoomRepository.GetChatRoomById(chatRoomId);
+        ChatRoomDto chatRoom = _chatRoomRepository.GetChatRoomById(chatRoomId);
 
         if (chatRoom == null)
         {
           throw new Exception("Chat room not found");
         }
 
-        var user = _userService.GetUserById(userId);
+        UserDto user = _userService.GetUserById(userId);
 
         if (user == null)
         {

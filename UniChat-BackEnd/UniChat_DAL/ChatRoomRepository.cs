@@ -136,7 +136,7 @@ public class ChatRoomRepository : IChatRoomRepository
             throw new Exception("Chat room not found");
         } 
 
-        var user = _context.Users.Find(userId);
+        UserEntity? user = _context.Users.Find(userId);
         if (user == null)
         {
             throw new Exception("User not found");
@@ -156,7 +156,7 @@ public class ChatRoomRepository : IChatRoomRepository
             throw new Exception("Chat room not found");
         }
 
-        var userChatroom = _context.UserChatrooms.Find(userId, chatRoomId);
+        UserChatroom? userChatroom = _context.UserChatrooms.Find(userId, chatRoomId);
         if (userChatroom == null)
         {
             throw new Exception("User not found");
