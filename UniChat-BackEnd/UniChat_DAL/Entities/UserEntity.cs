@@ -13,4 +13,6 @@ public class UserEntity
     public DateTime? RefreshTokenExpiry { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     public List<UserChatroom> UserChatrooms { get; set; }
+    public List<Invitation>? SentInvitations { get; set; }
+    public List<Invitation>? ReceivedInvitations { get; set; }
 }

@@ -12,7 +12,6 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Load connection string from appsettings.json
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -39,7 +38,8 @@ builder.Services.AddCors(options =>
                 "http://127.0.0.1:5500",
                 "http://145.85.233.168",
                 "http://145.85.233.168:5222",
-                "http://localhost:8081"
+                "http://localhost:8081",
+                "http://localhost:5222"
             )
             .AllowAnyMethod()
             .AllowAnyHeader()
@@ -58,6 +58,8 @@ builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<MessageService>();
 builder.Services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
 builder.Services.AddScoped<AnnouncementService>();
+builder.Services.AddScoped<IInvitationsRepository, InvitationRepository>();
+builder.Services.AddScoped<InvitationService>();
 builder.Services.AddScoped<AuthService>();
 
 builder.Services.AddControllers();

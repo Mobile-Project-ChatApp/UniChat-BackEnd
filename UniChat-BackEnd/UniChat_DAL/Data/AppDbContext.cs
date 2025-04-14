@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using UniChat_DAL.Entities;
+using dotenv.net;
 
 namespace UniChat_DAL.Data
 {
@@ -9,11 +10,15 @@ namespace UniChat_DAL.Data
         
         public AppDbContext() { }
 
+        
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseNpgsql("Host=localhost;Port=5431;Database=Unichat-db;Username=Unichat;Password=Unichat1234!");
+                DotEnv.Load();
+                var connectionString = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION");
+                optionsBuilder.UseNpgsql(connectionString);
             }
         }
 
@@ -23,6 +28,7 @@ namespace UniChat_DAL.Data
         public DbSet<UserChatroom> UserChatrooms { get; set; }
         public DbSet<AnnouncementEntity> Announcements { get; set; }
         public DbSet<UserAnnouncementInteraction> UserAnnouncementInteractions { get; set; }
+        public DbSet<Invitation> Invitations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -77,6 +83,25 @@ namespace UniChat_DAL.Data
                 .WithMany(x => x.Announcements)
                 .HasForeignKey(x => x.ChatroomId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Invitation>()
+                .HasOne(i => i.Sender)
+                .WithMany(u => u.SentInvitations)
+                .HasForeignKey(i => i.SenderId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Invitation>()
+                .HasOne(i => i.Receiver)
+                .WithMany(u => u.ReceivedInvitations)
+                .HasForeignKey(i => i.ReceiverId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Invitation>()
+                .HasOne(i => i.ChatRoom)
+                .WithMany(r => r.Invitations)
+                .HasForeignKey(i => i.ChatRoomId);
+
+
         }
     }
 }

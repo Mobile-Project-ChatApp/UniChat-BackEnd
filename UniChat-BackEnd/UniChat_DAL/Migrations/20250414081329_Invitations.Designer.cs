@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UniChat_DAL.Data;
@@ -11,9 +12,11 @@ using UniChat_DAL.Data;
 namespace UniChat_DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250414081329_Invitations")]
+    partial class Invitations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,16 +33,13 @@ namespace UniChat_DAL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ChatRoomId")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<bool>("IsAccepted")
-                        .HasColumnType("boolean");
-
                     b.Property<int>("ReceiverId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RoomId")
                         .HasColumnType("integer");
 
                     b.Property<int>("SenderId")
@@ -47,9 +47,9 @@ namespace UniChat_DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ChatRoomId");
-
                     b.HasIndex("ReceiverId");
+
+                    b.HasIndex("RoomId");
 
                     b.HasIndex("SenderId");
 
@@ -244,16 +244,16 @@ namespace UniChat_DAL.Migrations
 
             modelBuilder.Entity("Invitation", b =>
                 {
-                    b.HasOne("UniChat_DAL.Entities.ChatRoom", "ChatRoom")
-                        .WithMany("Invitations")
-                        .HasForeignKey("ChatRoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("UniChat_DAL.Entities.UserEntity", "Receiver")
                         .WithMany("ReceivedInvitations")
                         .HasForeignKey("ReceiverId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("UniChat_DAL.Entities.ChatRoom", "Room")
+                        .WithMany("Invitations")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("UniChat_DAL.Entities.UserEntity", "Sender")
@@ -262,9 +262,9 @@ namespace UniChat_DAL.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("ChatRoom");
-
                     b.Navigation("Receiver");
+
+                    b.Navigation("Room");
 
                     b.Navigation("Sender");
                 });

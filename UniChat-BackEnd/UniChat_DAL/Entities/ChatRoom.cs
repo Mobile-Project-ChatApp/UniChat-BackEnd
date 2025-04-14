@@ -9,5 +9,7 @@ namespace UniChat_DAL.Entities
         public List<Message> Messages { get; set; }
         public List<UserChatroom> UserChatrooms { get; set; }
         public List<AnnouncementEntity> Announcements { get; set; }
+        public List<Invitation> Invitations { get; set; }
+
     }
 }
