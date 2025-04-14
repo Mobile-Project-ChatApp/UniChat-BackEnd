@@ -101,7 +101,7 @@ builder.Services.AddAuthentication(options =>
 };
 
 
-    options.RequireHttpsMetadata = false; // Set to true in production
+    options.RequireHttpsMetadata = false;
     options.SaveToken = true;
     options.TokenValidationParameters = new TokenValidationParameters
     {

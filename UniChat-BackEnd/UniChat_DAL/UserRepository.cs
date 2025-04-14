@@ -2,6 +2,7 @@
 using UniChat_DAL.Data;
 using UniChat_BLL.Dto;
 using UniChat_DAL.Entities;
+using UniChat_BLL.Exceptions;
 
 namespace UniChat_DAL;
 
@@ -35,34 +36,24 @@ public class UserRepository : IUserRepository
 
     public UserDto GetUserById(int id)
     {
-        try
+        UserEntity? user = _context.Users.Find(id);
+
+        if (user == null)
+            throw new NotFoundException($"User with ID {id} not found");
+
+        return new UserDto
         {
-            UserEntity? user = _context.Users.Find(id);
-
-            if (user == null)
-            {
-                throw new Exception($"User not found");
-            }
-
-            return new UserDto
-            {
-                Id = user.Id,
-                Username = user.Username,
-                Email = user.Email,
-                PasswordHash = user.PasswordHash,
-                ProfilePicture = user.ProfilePicture,
-                CreatedAt = user.CreatedAt,
-                Semester = user.Semester,
-                Study = user.Study,
-                RefreshToken = user.RefreshToken,
-                RefreshTokenExpiry = user.RefreshTokenExpiry
-
-            };
-        }
-        catch (Exception e)
-        {
-            throw new Exception("An error occurred while getting the user", e);
-        }
+            Id = user.Id,
+            Username = user.Username,
+            Email = user.Email,
+            PasswordHash = user.PasswordHash,
+            ProfilePicture = user.ProfilePicture,
+            CreatedAt = user.CreatedAt,
+            Semester = user.Semester,
+            Study = user.Study,
+            RefreshToken = user.RefreshToken,
+            RefreshTokenExpiry = user.RefreshTokenExpiry
+        };
     }
 
     public bool CreateUser(CreateEditUserDto userDTO)
@@ -121,33 +112,26 @@ public class UserRepository : IUserRepository
 
     public bool UpdateUser(int id, CreateEditUserDto userDTO)
     {
-        try
-        {
-            UserEntity? user = _context.Users.Find(id);
+        UserEntity? user = _context.Users.Find(id);
 
-            if (user == null)
-            {
-                throw new Exception($"User not found");
-            }
+        if (user == null)
+            throw new NotFoundException($"User not found");
 
-            user.Username = userDTO.Username;
-            user.Email = userDTO.Email;
-            user.PasswordHash = userDTO.PasswordHash;
-            user.ProfilePicture = userDTO.ProfilePicture;
-            user.CreatedAt = userDTO.CreatedAt;
-            user.Semester = userDTO.Semester;
-            user.Study = userDTO.Study;
-            user.RefreshToken = userDTO.RefreshToken;
-            user.RefreshTokenExpiry = userDTO.RefreshTokenExpiry;
 
-            _context.SaveChanges();
-            return true;
-        }
-        catch (Exception e)
-        {
-            throw new Exception("An error occurred while updating user", e);
-        }
+        user.Username = userDTO.Username;
+        user.Email = userDTO.Email;
+        user.PasswordHash = userDTO.PasswordHash;
+        user.ProfilePicture = userDTO.ProfilePicture;
+        user.CreatedAt = userDTO.CreatedAt;
+        user.Semester = userDTO.Semester;
+        user.Study = userDTO.Study;
+        user.RefreshToken = userDTO.RefreshToken;
+        user.RefreshTokenExpiry = userDTO.RefreshTokenExpiry;
+
+        _context.SaveChanges();
+        return true;
     }
+    
 
     public UserDto? GetUserByUsername(string username)
     {

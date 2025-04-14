@@ -26,7 +26,7 @@ public class ChatRoomRepository : IChatRoomRepository
         }).ToList();
     }
 
-    public ChatRoomDto GetChatRoomById(int id)
+    public ChatRoomDto? GetChatRoomById(int id)
     {
         ChatRoom? chatRoom = _context.ChatRooms
             .Include(c => c.Messages)
@@ -36,7 +36,7 @@ public class ChatRoomRepository : IChatRoomRepository
         
         if (chatRoom == null)
         {
-            throw new Exception("Chat room not found");
+            return null;
         }
 
         return new ChatRoomDto

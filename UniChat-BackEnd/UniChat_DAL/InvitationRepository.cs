@@ -14,6 +14,23 @@ public class InvitationRepository : IInvitationsRepository
         _context = context;
     }
 
+    public InvitationDto? GetInvitationByChatRoomAndReceiver(int chatRoomId, int receiverId)
+    {
+        var invitation = _context.Invitations
+            .FirstOrDefault(i => i.ChatRoomId == chatRoomId && i.ReceiverId == receiverId);
+        if (invitation == null)
+            return null;
+        return new InvitationDto
+        {
+            Id = invitation.Id,
+            SenderId = invitation.SenderId,
+            ReceiverId = invitation.ReceiverId,
+            ChatRoomId = invitation.ChatRoomId,
+            CreatedAt = invitation.CreatedAt,
+            IsAccepted = invitation.IsAccepted
+        };
+    }
+
     public bool CreateInvitation(CreateEditInvitationDto invitation)
     {
         var newInvitation = new Invitation

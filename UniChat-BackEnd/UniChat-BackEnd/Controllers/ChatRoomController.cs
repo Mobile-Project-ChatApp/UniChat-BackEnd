@@ -29,7 +29,7 @@ namespace UniChat_BackEnd.Controllers
             ChatRoomDto chatRoom = _chatRoomService.GetChatRoomById(id);
             if (chatRoom == null)
             {
-                return NotFound();
+                return NotFound("No chatroom found");
             }
             return Ok(chatRoom);
         }
