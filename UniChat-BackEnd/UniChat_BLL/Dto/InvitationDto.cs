@@ -13,7 +13,6 @@ namespace UniChat_BLL.Dto
         public int ReceiverId { get; set; }
         public int ChatRoomId { get; set; }
         public DateTime CreatedAt { get; set; }
-        public bool IsAccepted { get; set; }
         public UserDto Sender { get; set; }
         public UserDto Receiver { get; set; }
         public ChatRoomDto ChatRoom { get; set; }

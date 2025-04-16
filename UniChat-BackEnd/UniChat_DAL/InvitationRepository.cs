@@ -25,8 +25,7 @@ public class InvitationRepository : IInvitationsRepository
                 SenderId = i.SenderId,
                 ReceiverId = i.ReceiverId,
                 ChatRoomId = i.ChatRoomId,
-                CreatedAt = i.CreatedAt,
-                IsAccepted = i.IsAccepted
+                CreatedAt = i.CreatedAt
             })
             .ToList();
         if (invitations == null || !invitations.Any())
@@ -36,7 +35,7 @@ public class InvitationRepository : IInvitationsRepository
 
     public InvitationDto GetInvitationById(int invitationId)
     {
-        InvitationDto invitation = _context.Invitations.Find(invitationId);
+        Invitation invitation = _context.Invitations.Find(invitationId);
         if (invitation == null)
             throw new NotFoundException("Invitation not found.");
         return new InvitationDto
@@ -45,8 +44,7 @@ public class InvitationRepository : IInvitationsRepository
             SenderId = invitation.SenderId,
             ReceiverId = invitation.ReceiverId,
             ChatRoomId = invitation.ChatRoomId,
-            CreatedAt = invitation.CreatedAt,
-            IsAccepted = invitation.IsAccepted
+            CreatedAt = invitation.CreatedAt
         };
     }
 
@@ -62,8 +60,7 @@ public class InvitationRepository : IInvitationsRepository
             SenderId = invitation.SenderId,
             ReceiverId = invitation.ReceiverId,
             ChatRoomId = invitation.ChatRoomId,
-            CreatedAt = invitation.CreatedAt,
-            IsAccepted = invitation.IsAccepted
+            CreatedAt = invitation.CreatedAt
         };
     }
 
@@ -74,8 +71,7 @@ public class InvitationRepository : IInvitationsRepository
             SenderId = invitation.SenderId,
             ReceiverId = invitation.ReceiverId,
             ChatRoomId = invitation.ChatRoomId,
-            CreatedAt = DateTime.UtcNow,
-            IsAccepted = false
+            CreatedAt = DateTime.UtcNow
         };
         _context.Invitations.Add(newInvitation);
         _context.SaveChanges();

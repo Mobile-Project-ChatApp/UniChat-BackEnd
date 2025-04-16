@@ -13,7 +13,5 @@ public class Invitation
     public int ChatRoomId { get; set; }
     public ChatRoom? ChatRoom { get; set; }
 
-    public bool IsAccepted { get; set; } = false;
-
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
