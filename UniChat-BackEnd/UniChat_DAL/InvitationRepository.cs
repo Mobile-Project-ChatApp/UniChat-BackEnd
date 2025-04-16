@@ -17,7 +17,7 @@ public class InvitationRepository : IInvitationsRepository
 
     public List<InvitationDto?> GetInvitationsByUserId(int userId)
     {
-        var invitations = _context.Invitations
+        List<InvitationDto> invitations = _context.Invitations
             .Where(i => i.ReceiverId == userId)
             .Select(i => new InvitationDto
             {
@@ -36,7 +36,7 @@ public class InvitationRepository : IInvitationsRepository
 
     public InvitationDto GetInvitationById(int invitationId)
     {
-        var invitation = _context.Invitations.Find(invitationId);
+        InvitationDto invitation = _context.Invitations.Find(invitationId);
         if (invitation == null)
             throw new NotFoundException("Invitation not found.");
         return new InvitationDto
@@ -52,7 +52,7 @@ public class InvitationRepository : IInvitationsRepository
 
     public InvitationDto? GetInvitationByChatRoomAndReceiver(int chatRoomId, int receiverId)
     {
-        var invitation = _context.Invitations
+        Invitation? invitation = _context.Invitations
             .FirstOrDefault(i => i.ChatRoomId == chatRoomId && i.ReceiverId == receiverId);
         if (invitation == null)
             return null;
@@ -69,7 +69,7 @@ public class InvitationRepository : IInvitationsRepository
 
     public bool CreateInvitation(CreateEditInvitationDto invitation)
     {
-        var newInvitation = new Invitation
+        Invitation newInvitation = new Invitation
         {
             SenderId = invitation.SenderId,
             ReceiverId = invitation.ReceiverId,
@@ -84,7 +84,7 @@ public class InvitationRepository : IInvitationsRepository
 
     public bool DeleteInvitation(int invitationId)
     {
-        var invitation = _context.Invitations.Find(invitationId);
+        Invitation? invitation = _context.Invitations.Find(invitationId);
         if (invitation == null)
             throw new NotFoundException("Invitation not found.");
         _context.Invitations.Remove(invitation);
