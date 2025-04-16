@@ -49,6 +49,8 @@ public class ChatRoomRepository : IChatRoomRepository
             {
                 Id = m.Id,
                 MessageText = m.MessageText,
+                SenderId = m.SenderId,
+                SentAt = m.SentAt,
             }).ToList(),
             Members = chatRoom.UserChatrooms.Select(uc => new UserDto
             {
