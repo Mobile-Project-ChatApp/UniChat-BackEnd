@@ -3,6 +3,7 @@ using UniChat_DAL.Entities;
 using UniChat_BLL.Dto;
 using UniChat_BLL.Interfaces;
 using UniChat_BLL.Exceptions;
+using Microsoft.EntityFrameworkCore;
 
 namespace UniChat_DAL;
 
@@ -25,7 +26,24 @@ public class InvitationRepository : IInvitationsRepository
                 SenderId = i.SenderId,
                 ReceiverId = i.ReceiverId,
                 ChatRoomId = i.ChatRoomId,
-                CreatedAt = i.CreatedAt
+                CreatedAt = i.CreatedAt,
+                Sender = new UserDto
+                {
+                    Id = i.Sender.Id,
+                    Username = i.Sender.Username,
+                    Email = i.Sender.Email
+                },
+                Receiver = new UserDto
+                {
+                    Id = i.Receiver.Id,
+                    Username = i.Receiver.Username,
+                    Email = i.Receiver.Email
+                },
+                ChatRoom = new ChatRoomDto
+                {
+                    Id = i.ChatRoom.Id,
+                    Name = i.ChatRoom.Name
+                }
             })
             .ToList();
         if (invitations == null || !invitations.Any())
