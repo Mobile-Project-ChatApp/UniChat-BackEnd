@@ -4,7 +4,10 @@ namespace UniChat_BLL.Interfaces
 {
     public interface IInvitationsRepository
     {
-        InvitationDto GetInvitationByChatRoomAndReceiver(int chatRoomId, int receiverId);
+        List<InvitationDto?> GetInvitationsByUserId(int userId);
+        InvitationDto? GetInvitationById(int invitationId);
+        InvitationDto? GetInvitationByChatRoomAndReceiver(int chatRoomId, int receiverId);
         bool CreateInvitation(CreateEditInvitationDto invitation);
+        bool DeleteInvitation(int invitationId);
     }
 }

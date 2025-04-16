@@ -34,12 +34,12 @@ public class UserRepository : IUserRepository
         }
     }
 
-    public UserDto GetUserById(int id)
+    public UserDto? GetUserById(int id)
     {
         UserEntity? user = _context.Users.Find(id);
 
         if (user == null)
-            throw new NotFoundException($"User with ID {id} not found");
+            return null;
 
         return new UserDto
         {

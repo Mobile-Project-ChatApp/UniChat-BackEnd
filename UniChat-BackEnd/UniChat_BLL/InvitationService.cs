@@ -14,7 +14,17 @@ public class InvitationService
         _chatRoomRepository = chatRoomRepository;
     }
 
-    public InvitationDto GetInvitationByChatRoomAndReceiver(int chatRoomId, int receiverId)
+    public List<InvitationDto?> GetInvitationsByUserId(int userId)
+    {
+        return _invitationsRepository.GetInvitationsByUserId(userId);
+    }
+
+    public InvitationDto? GetInvitationById(int invitationId)
+    {
+        return _invitationsRepository.GetInvitationById(invitationId);
+    }
+
+    public InvitationDto? GetInvitationByChatRoomAndReceiver(int chatRoomId, int receiverId)
     {
         return _invitationsRepository.GetInvitationByChatRoomAndReceiver(chatRoomId, receiverId);
     }
@@ -24,6 +34,10 @@ public class InvitationService
         return _invitationsRepository.CreateInvitation(invitation);
     }
 
+    public bool DeleteInvitation(int invitationId)
+    {
+        return _invitationsRepository.DeleteInvitation(invitationId);
+    }
 
 
 

@@ -2,6 +2,7 @@
 using UniChat_DAL.Entities;
 using UniChat_BLL.Dto;
 using UniChat_BLL.Interfaces;
+using UniChat_BLL.Exceptions;
 
 namespace UniChat_DAL;
 
@@ -12,6 +13,41 @@ public class InvitationRepository : IInvitationsRepository
     public InvitationRepository(AppDbContext context)
     {
         _context = context;
+    }
+
+    public List<InvitationDto?> GetInvitationsByUserId(int userId)
+    {
+        var invitations = _context.Invitations
+            .Where(i => i.ReceiverId == userId)
+            .Select(i => new InvitationDto
+            {
+                Id = i.Id,
+                SenderId = i.SenderId,
+                ReceiverId = i.ReceiverId,
+                ChatRoomId = i.ChatRoomId,
+                CreatedAt = i.CreatedAt,
+                IsAccepted = i.IsAccepted
+            })
+            .ToList();
+        if (invitations == null || !invitations.Any())
+            return null;
+        return invitations;
+    } 
+
+    public InvitationDto GetInvitationById(int invitationId)
+    {
+        var invitation = _context.Invitations.Find(invitationId);
+        if (invitation == null)
+            throw new NotFoundException("Invitation not found.");
+        return new InvitationDto
+        {
+            Id = invitation.Id,
+            SenderId = invitation.SenderId,
+            ReceiverId = invitation.ReceiverId,
+            ChatRoomId = invitation.ChatRoomId,
+            CreatedAt = invitation.CreatedAt,
+            IsAccepted = invitation.IsAccepted
+        };
     }
 
     public InvitationDto? GetInvitationByChatRoomAndReceiver(int chatRoomId, int receiverId)
@@ -42,6 +78,16 @@ public class InvitationRepository : IInvitationsRepository
             IsAccepted = false
         };
         _context.Invitations.Add(newInvitation);
+        _context.SaveChanges();
+        return true;
+    }
+
+    public bool DeleteInvitation(int invitationId)
+    {
+        var invitation = _context.Invitations.Find(invitationId);
+        if (invitation == null)
+            throw new NotFoundException("Invitation not found.");
+        _context.Invitations.Remove(invitation);
         _context.SaveChanges();
         return true;
     }
