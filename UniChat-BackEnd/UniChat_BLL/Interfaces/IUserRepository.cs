@@ -13,5 +13,6 @@ namespace UniChat_BLL.Interfaces
         UserDto? GetUserByEmail(string email);
         UserDto? GetUserByRefreshToken(string refreshToken);
         void UpdateRefreshToken(int id, string refreshToken, DateTime refreshTokenExpiry);
+        void PatchUser(int id, UpdateUserDto userDTO);
     }
 }
