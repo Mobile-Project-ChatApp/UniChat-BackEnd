@@ -33,6 +33,20 @@ public class UserRepository : IUserRepository
         }
     }
 
+    public void PatchUser(int id, UpdateUserDto userDTO)
+    {
+        var user = _context.Users.FirstOrDefault(u => u.Id == id);
+        if (user == null)
+            throw new Exception("User not found");
+        if (!string.IsNullOrEmpty(userDTO.Username)) user.Username = userDTO.Username;
+        if (!string.IsNullOrEmpty(userDTO.Email)) user.Email = userDTO.Email;
+        if (!string.IsNullOrEmpty(userDTO.PasswordHash)) user.PasswordHash = userDTO.PasswordHash;
+        if (userDTO.Semester.HasValue) user.Semester = userDTO.Semester.Value;
+        if (!string.IsNullOrEmpty(userDTO.Study)) user.Study = userDTO.Study;
+
+        _context.SaveChanges();
+    }
+
     public UserDto GetUserById(int id)
     {
         try
@@ -189,6 +203,8 @@ public class UserRepository : IUserRepository
                 Username = user.Username,
                 PasswordHash = user.PasswordHash,
                 Email = user.Email,
+                Semester = user.Semester,
+                Study = user.Study,
                 ProfilePicture = user.ProfilePicture,
                 CreatedAt = user.CreatedAt
             };

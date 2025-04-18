@@ -40,5 +40,13 @@ namespace UniChat.API.Controllers
             return Ok(_userService.UpdateUser(id, userDTO));
         }
 
+        [HttpPatch("{id}")]
+        public IActionResult PatchUser(int id, UpdateUserDto userDTO)
+        {
+            _userService.PatchUser(id, userDTO);
+            var updatedUser = _userService.GetUserById(id);
+            return Ok(updatedUser);
+        }
+
     }
 }

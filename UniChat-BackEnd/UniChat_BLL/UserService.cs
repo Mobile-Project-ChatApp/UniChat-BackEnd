@@ -21,6 +21,11 @@ namespace UniChat_BLL
             return _userRepository.GetAllUsers();
         }
 
+        public void PatchUser(int id, UpdateUserDto userDTO)
+        {
+            _userRepository.PatchUser(id, userDTO);
+        }
+
         public UserDto GetUserById(int id)
         {
             return _userRepository.GetUserById(id);
@@ -42,7 +47,7 @@ namespace UniChat_BLL
         public bool UpdateUser(int id, CreateEditUserDto userDTO)
         {
             var passwordHasher = new PasswordHasher<object>();
-            userDTO.PasswordHash = passwordHasher.HashPassword(null, userDTO.PasswordHash);
+                userDTO.PasswordHash = passwordHasher.HashPassword(null, userDTO.PasswordHash);
             return _userRepository.UpdateUser(id, userDTO);
         }
 
@@ -84,7 +89,10 @@ namespace UniChat_BLL
                 ProfilePicture = user.ProfilePicture,
                 CreatedAt = user.CreatedAt,
                 RefreshToken = refreshToken, // Assign new refresh token
-                RefreshTokenExpiry = expiry  // Assign new expiry date
+                RefreshTokenExpiry = expiry,  // Assign new expiry date
+                Semester = user.Semester,
+                Study = user.Study
+
             };
 
             _userRepository.UpdateUser(user.Id, createEditUserDTO); // Assuming this method commits the changes to the database
