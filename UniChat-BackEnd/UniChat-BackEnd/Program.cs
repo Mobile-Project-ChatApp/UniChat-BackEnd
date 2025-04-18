@@ -12,7 +12,6 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Load connection string from appsettings.json
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -39,7 +38,8 @@ builder.Services.AddCors(options =>
                 "http://127.0.0.1:5500",
                 "http://145.85.233.168",
                 "http://145.85.233.168:5222",
-                "http://localhost:8081"
+                "http://localhost:8081",
+                "http://localhost:5222"
             )
             .AllowAnyMethod()
             .AllowAnyHeader()
@@ -58,6 +58,8 @@ builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<MessageService>();
 builder.Services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
 builder.Services.AddScoped<AnnouncementService>();
+builder.Services.AddScoped<IInvitationsRepository, InvitationRepository>();
+builder.Services.AddScoped<InvitationService>();
 builder.Services.AddScoped<AuthService>();
 
 builder.Services.AddControllers();
@@ -76,22 +78,30 @@ builder.Services.AddAuthentication(options =>
 .AddJwtBearer(options =>
 {
     options.Events = new JwtBearerEvents
+{
+    OnMessageReceived = context =>
     {
-        OnMessageReceived = context =>
+        // 1. Check cookie
+        var cookieToken = context.Request.Cookies["jwt"];
+        if (!string.IsNullOrEmpty(cookieToken))
         {
-            // Check if JWT exists in the cookie
-            var accessToken = context.Request.Cookies["jwt"];
-
-            if (!string.IsNullOrEmpty(accessToken))
-            {
-                context.Token = accessToken;
-            }
-
-            return Task.CompletedTask;
+            context.Token = cookieToken;
         }
-    };
 
-    options.RequireHttpsMetadata = false; // Set to true in production
+        // 2. Optional: also support query token for SignalR or other use
+        var accessToken = context.Request.Query["access_token"];
+        var path = context.HttpContext.Request.Path;
+        if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chatHub"))
+        {
+            context.Token = accessToken;
+        }
+
+        return Task.CompletedTask;
+    }
+};
+
+
+    options.RequireHttpsMetadata = false;
     options.SaveToken = true;
     options.TokenValidationParameters = new TokenValidationParameters
     {
@@ -102,21 +112,6 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = jwtSettings["Issuer"],
         ValidAudience = jwtSettings["Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
-    };
-
-    options.Events = new JwtBearerEvents
-    {
-        OnMessageReceived = context =>
-        {
-            var accessToken = context.Request.Query["access_token"];
-
-            var path = context.HttpContext.Request.Path;
-            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chatHub"))
-            {
-                context.Token = accessToken;
-            }
-            return Task.CompletedTask;
-        }
     };
 });
 

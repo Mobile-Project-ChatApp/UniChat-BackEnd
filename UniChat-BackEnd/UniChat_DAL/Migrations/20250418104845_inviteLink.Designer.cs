@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UniChat_DAL.Data;
@@ -11,9 +12,11 @@ using UniChat_DAL.Data;
 namespace UniChat_DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250418104845_inviteLink")]
+    partial class inviteLink
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -142,11 +145,10 @@ namespace UniChat_DAL.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("IsUsed")
+                        .HasColumnType("boolean");
+
                     b.HasKey("Id");
-
-                    b.HasIndex("ChatroomId");
-
-                    b.HasIndex("CreatedByUserId");
 
                     b.HasIndex("InviteCode")
                         .IsUnique();
@@ -319,25 +321,6 @@ namespace UniChat_DAL.Migrations
                     b.Navigation("Chatroom");
 
                     b.Navigation("Sender");
-                });
-
-            modelBuilder.Entity("UniChat_DAL.Entities.InviteLink", b =>
-                {
-                    b.HasOne("UniChat_DAL.Entities.ChatRoom", "Chatroom")
-                        .WithMany()
-                        .HasForeignKey("ChatroomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("UniChat_DAL.Entities.UserEntity", "Creator")
-                        .WithMany()
-                        .HasForeignKey("CreatedByUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Chatroom");
-
-                    b.Navigation("Creator");
                 });
 
             modelBuilder.Entity("UniChat_DAL.Entities.Message", b =>
