@@ -29,6 +29,7 @@ namespace UniChat_DAL.Data
         public DbSet<AnnouncementEntity> Announcements { get; set; }
         public DbSet<UserAnnouncementInteraction> UserAnnouncementInteractions { get; set; }
         public DbSet<Invitation> Invitations { get; set; }
+        public DbSet<InviteLink> InviteLinks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -100,6 +101,18 @@ namespace UniChat_DAL.Data
                 .HasOne(i => i.ChatRoom)
                 .WithMany(r => r.Invitations)
                 .HasForeignKey(i => i.ChatRoomId);
+
+            modelBuilder.Entity<InviteLink>()
+            .HasIndex(i => i.InviteCode)
+            .IsUnique();
+
+            modelBuilder.Entity<InviteLink>()
+                .HasOne(i => i.Creator)
+                .WithMany()
+                .HasForeignKey(i => i.CreatedByUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+
 
 
         }

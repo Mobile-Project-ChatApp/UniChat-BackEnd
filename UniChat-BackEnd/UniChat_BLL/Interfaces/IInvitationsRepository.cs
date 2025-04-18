@@ -9,5 +9,7 @@ namespace UniChat_BLL.Interfaces
         InvitationDto? GetInvitationByChatRoomAndReceiver(int chatRoomId, int receiverId);
         bool CreateInvitation(CreateEditInvitationDto invitation);
         bool DeleteInvitation(int invitationId);
+        InviteLinkDto? GetInviteLinkByCode(string inviteCode);
+        string CreateInviteLink(CreateInviteLinkDto inviteLink, int userId);
     }
 }

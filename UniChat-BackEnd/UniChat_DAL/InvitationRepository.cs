@@ -49,7 +49,7 @@ public class InvitationRepository : IInvitationsRepository
         if (invitations == null || !invitations.Any())
             return null;
         return invitations;
-    } 
+    }
 
     public InvitationDto GetInvitationById(int invitationId)
     {
@@ -104,5 +104,39 @@ public class InvitationRepository : IInvitationsRepository
         _context.Invitations.Remove(invitation);
         _context.SaveChanges();
         return true;
+    }
+
+    public InviteLinkDto? GetInviteLinkByCode(string inviteCode)
+    {
+        InviteLink? inviteLink = _context.InviteLinks
+            .Include(i => i.Chatroom)
+            .FirstOrDefault(i => i.InviteCode == inviteCode);
+        if (inviteLink == null)
+            return null;
+        return new InviteLinkDto
+        {
+            Id = inviteLink.Id,
+            ChatroomId = inviteLink.ChatroomId,
+            CreatedByUserId = inviteLink.CreatedByUserId,
+            InviteCode = inviteLink.InviteCode,
+            CreatedAt = inviteLink.CreatedAt,
+            ExpiresAt = inviteLink.ExpiresAt
+        };
+
+    }
+
+    public string CreateInviteLink(CreateInviteLinkDto inviteLink, int userId)
+    {
+        InviteLink newInviteLink = new InviteLink
+        {
+            ChatroomId = inviteLink.ChatroomId,
+            CreatedByUserId = userId,
+            InviteCode = Guid.NewGuid().ToString(),
+            CreatedAt = DateTime.UtcNow,
+            ExpiresAt = DateTime.UtcNow.AddDays(7)
+        };
+        _context.InviteLinks.Add(newInviteLink);
+        _context.SaveChanges();
+        return newInviteLink.InviteCode;
     }
 }

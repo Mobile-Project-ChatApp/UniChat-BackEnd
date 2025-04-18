@@ -1,4 +1,6 @@
-﻿using UniChat_BLL.Dto;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using UniChat_BLL.Dto;
 using UniChat_BLL.Interfaces;
 
 namespace UniChat_BLL;
@@ -38,6 +40,18 @@ public class InvitationService
     {
         return _invitationsRepository.DeleteInvitation(invitationId);
     }
+
+    public InviteLinkDto? GetInviteLinkByCode(string inviteCode)
+    {
+        return _invitationsRepository.GetInviteLinkByCode(inviteCode);
+    }
+
+    public string CreateInviteLink(CreateInviteLinkDto createInviteLinkDto, int userId)
+    {
+        return _invitationsRepository.CreateInviteLink(createInviteLinkDto, userId);
+    }
+
+
 
 
 

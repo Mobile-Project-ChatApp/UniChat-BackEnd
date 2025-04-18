@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using UniChat_BLL;
 using UniChat_BLL.Dto;
 using UniChat_BLL.Exceptions;
+using UniChat_DAL.Entities;
 
 namespace UniChat_BackEnd.Controllers
 {
@@ -153,6 +155,74 @@ namespace UniChat_BackEnd.Controllers
             {
                 return BadRequest(ex.Message);
             }
+
+        }
+
+        [HttpPost]
+        [Authorize]
+        [Route("createInviteLink")]
+        public IActionResult CreateInviteLink([FromBody] CreateInviteLinkDto dto)
+        {
+            Claim? userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            int createdByUserId = int.Parse(userIdClaim.Value);
+            HttpRequest request = HttpContext.Request;
+
+            ChatRoomDto chatroom = _chatRoomService.GetChatRoomById(dto.ChatroomId);
+            if (chatroom == null)
+                return null;
+
+            if (!chatroom.Members.Any(u => u.Id == createdByUserId))
+                return BadRequest("You are not a member of this chat room.");
+
+            string inviteLinkCode = _invitationService.CreateInviteLink(dto, createdByUserId);
+            if (inviteLinkCode == null)
+                return NotFound("Chat room not found or failed to create invite link.");
+
+            string baseUrl = $"{request.Scheme}://{request.Host}";
+            return Ok($"{baseUrl}/invite/{inviteLinkCode}");
+        }
+
+        [HttpPost]
+        [Authorize]
+        [Route("redeemInviteLink/{inviteCode}")]
+        public IActionResult RedeemInviteLink([FromRoute] string inviteCode)
+
+        {
+            try
+            {
+                Claim? userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+                if (userIdClaim == null)
+                    return Unauthorized();
+
+                int userId = int.Parse(userIdClaim.Value);
+
+                InviteLinkDto? inviteLinkDto = _invitationService.GetInviteLinkByCode(inviteCode);
+                if (inviteLinkDto == null)
+                    return NotFound("Invite link not found.");
+
+                ChatRoomDto? chatRoom = _chatRoomService.GetChatRoomById(inviteLinkDto.ChatroomId);
+                if (chatRoom == null)
+                    return NotFound("Chat room not found.");
+
+                if (chatRoom.Members.Any(u => u.Id == userId))
+                    return Conflict("You are already a member of this chat room.");
+
+                _chatRoomService.AddUserToChatRoom(chatRoom.Id, userId);
+
+                return Ok(new { message = "Successfully joined chatroom." });
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
 
         }
     }
