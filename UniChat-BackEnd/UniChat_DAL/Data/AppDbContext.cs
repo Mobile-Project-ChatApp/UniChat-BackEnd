@@ -20,6 +20,8 @@ namespace UniChat_DAL.Data
         public DbSet<UserEntity> Users { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<ChatRoom> ChatRooms { get; set; }
+        public DbSet<ChatRoomSemester> ChatRoomSemesters { get; set; }
+        public DbSet<ChatRoomStudy> ChatRoomStudies { get; set; }
         public DbSet<UserChatroom> UserChatrooms { get; set; }
         public DbSet<AnnouncementEntity> Announcements { get; set; }
         public DbSet<UserAnnouncementInteraction> UserAnnouncementInteractions { get; set; }
@@ -40,6 +42,22 @@ namespace UniChat_DAL.Data
                 .HasOne(uc => uc.ChatRoom)
                 .WithMany(c => c.UserChatrooms)
                 .HasForeignKey(uc => uc.ChatRoomId);
+            
+            modelBuilder.Entity<ChatRoomSemester>()
+                .HasKey(crs => new { crs.ChatRoomId, crs.Semester });
+            
+            modelBuilder.Entity<ChatRoomSemester>()
+                .HasOne(crs => crs.ChatRoom)
+                .WithMany(cr => cr.ChatRoomSemesters)
+                .HasForeignKey(crs => crs.ChatRoomId);
+            
+            modelBuilder.Entity<ChatRoomStudy>()
+                .HasKey(crs => new { crs.ChatRoomId, crs.Study });
+            
+            modelBuilder.Entity<ChatRoomStudy>()
+                .HasOne(crs => crs.ChatRoom)
+                .WithMany(cr => cr.ChatRoomStudies)
+                .HasForeignKey(crs => crs.ChatRoomId);
 
             modelBuilder.Entity<Message>()
                 .HasOne(m => m.Sender)

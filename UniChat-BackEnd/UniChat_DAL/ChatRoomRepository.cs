@@ -32,6 +32,8 @@ public class ChatRoomRepository : IChatRoomRepository
             .Include(c => c.Messages)
             .Include(c => c.UserChatrooms)
                 .ThenInclude(uc => uc.User)
+            .Include(c => c.ChatRoomSemesters)
+            .Include(c => c.ChatRoomStudies)
             .FirstOrDefault(c => c.Id == id);
         
         if (chatRoom == null)
@@ -45,6 +47,14 @@ public class ChatRoomRepository : IChatRoomRepository
             Name = chatRoom.Name,
             Description = chatRoom.Description,
             CreatedAt = chatRoom.CreatedAt,
+            ChatRoomSemesters = chatRoom.ChatRoomSemesters.Select(cs => new ChatRoomSemesterDto
+            {
+                Semester = cs.Semester,
+            }).ToList(),
+            ChatRoomStudies = chatRoom.ChatRoomStudies.Select(cs => new ChatRoomStudyDto
+            {
+                Study = cs.Study,
+            }).ToList(),
             Messages = chatRoom.Messages.Select(m => new MessageDto
             {
                 Id = m.Id,
@@ -65,7 +75,15 @@ public class ChatRoomRepository : IChatRoomRepository
         ChatRoom? chatRoom = new ChatRoom
         {
             Name = chatRoomDto.Name,
-            Description = chatRoomDto.Description
+            Description = chatRoomDto.Description,
+            ChatRoomSemesters = chatRoomDto.ChatRoomSemesters.Select(cs => new ChatRoomSemester
+            {
+                Semester = cs.Semester,
+            }).ToList(),
+            ChatRoomStudies = chatRoomDto.ChatRoomStudies.Select(cs => new ChatRoomStudy
+            {
+                Study = cs.Study,
+            }).ToList(),
         };
 
         _context.ChatRooms.Add(chatRoom);
@@ -84,6 +102,14 @@ public class ChatRoomRepository : IChatRoomRepository
 
         chatRoom.Name = chatRoomDto.Name;
         chatRoom.Description = chatRoomDto.Description;
+        chatRoom.ChatRoomSemesters = chatRoomDto.ChatRoomSemesters.Select(cs => new ChatRoomSemester
+        {
+            Semester = cs.Semester,
+        }).ToList();
+        chatRoom.ChatRoomStudies = chatRoomDto.ChatRoomStudies.Select(cs => new ChatRoomStudy
+        {
+            Study = cs.Study,
+        }).ToList();
 
         _context.SaveChanges();
 
@@ -112,7 +138,7 @@ public class ChatRoomRepository : IChatRoomRepository
             throw new Exception("Chat room not found");
         } 
 
-        var user = _context.Users.Find(userId);
+        UserEntity? user = _context.Users.Find(userId);
         if (user == null)
         {
             throw new Exception("User not found");
@@ -132,7 +158,7 @@ public class ChatRoomRepository : IChatRoomRepository
             throw new Exception("Chat room not found");
         }
 
-        var userChatroom = _context.UserChatrooms.Find(userId, chatRoomId);
+        UserChatroom? userChatroom = _context.UserChatrooms.Find(userId, chatRoomId);
         if (userChatroom == null)
         {
             throw new Exception("User not found");
