@@ -43,6 +43,7 @@ public class UserRepository : IUserRepository
         if (!string.IsNullOrEmpty(userDTO.PasswordHash)) user.PasswordHash = userDTO.PasswordHash;
         if (userDTO.Semester.HasValue) user.Semester = userDTO.Semester.Value;
         if (!string.IsNullOrEmpty(userDTO.Study)) user.Study = userDTO.Study;
+        if (!string.IsNullOrEmpty(userDTO.ProfilePicture)) user.ProfilePicture = userDTO.ProfilePicture;
 
         _context.SaveChanges();
     }
