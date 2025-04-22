@@ -139,7 +139,7 @@ app.Use(async (context, next) =>
     
     await next();
 });
-
+app.UseStaticFiles(); // Enables public access to wwwroot content
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

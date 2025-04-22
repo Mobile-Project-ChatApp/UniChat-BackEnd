@@ -13,6 +13,7 @@ namespace UniChat_BLL.Dto
         public string? PasswordHash { get; set; }
         public int? Semester { get; set; }
         public string? Study { get; set; }
+        public string? ProfilePicture { get; set; }
 
     }
 }
