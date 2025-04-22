@@ -143,5 +143,20 @@ public class ChatRoomRepository : IChatRoomRepository
 
         return true;
     }
+
+    public List<ChatRoomDto> GetChatRoomsByUserId(int userId)
+    {
+        return _context.UserChatrooms
+            .Where(uc => uc.UserId == userId)
+            .Select(uc => new ChatRoomDto
+            {
+                Id = uc.ChatRoom.Id,
+                Name = uc.ChatRoom.Name,
+                Description = uc.ChatRoom.Description,
+                CreatedAt = uc.ChatRoom.CreatedAt
+            })
+            .ToList();
+    }
+
 }
 
