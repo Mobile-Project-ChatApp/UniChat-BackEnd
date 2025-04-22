@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using UniChat_BLL;
 using UniChat_BLL.Dto;
 using UniChat_BLL.Interfaces;
@@ -88,6 +90,27 @@ namespace UniChat_BackEnd.Controllers
                 return NotFound();
             }
             return NoContent();
+        }
+
+        
+        [HttpGet("byUserId")]
+        [Authorize]
+        public IActionResult GetChatroomByUserId()
+        {
+            Claim? userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+                return Unauthorized();
+            int userId = int.Parse(userIdClaim.Value);
+
+            List<ChatRoomDto?> chatRooms;
+
+            chatRooms = _chatRoomService.GetChatRoomByUserId(userId);
+
+            if (chatRooms == null)
+                return NotFound();
+
+            return Ok(chatRooms);
+
         }
     }
 }
