@@ -43,6 +43,9 @@ public class UserRepository : IUserRepository
             {
                 throw new Exception($"User not found");
             }
+            
+            _context.Entry(user).Reference(u => u.Semester).Load();
+            _context.Entry(user).Reference(u => u.Study).Load();
 
             return new UserDto
             {
@@ -53,7 +56,19 @@ public class UserRepository : IUserRepository
                 ProfilePicture = user.ProfilePicture,
                 CreatedAt = user.CreatedAt,
                 SemesterId = user.SemesterId,
+                Semester = new SemesterDto
+                {
+                    Id = user.Semester.Id,
+                    Name = user.Semester.Name,
+                    Description = user.Semester.Description
+                },
                 StudyId = user.StudyId,
+                Study = new StudyDto
+                {
+                    Id = user.Study.Id,
+                    Name = user.Study.Name,
+                    Description = user.Study.Description
+                },
                 RefreshToken = user.RefreshToken,
                 RefreshTokenExpiry = user.RefreshTokenExpiry
 
