@@ -58,6 +58,8 @@ builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<MessageService>();
 builder.Services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
 builder.Services.AddScoped<AnnouncementService>();
+builder.Services.AddScoped<IStudyRepository, StudyRepository>();
+builder.Services.AddScoped<StudyService>();
 builder.Services.AddScoped<AuthService>();
 
 builder.Services.AddControllers();
