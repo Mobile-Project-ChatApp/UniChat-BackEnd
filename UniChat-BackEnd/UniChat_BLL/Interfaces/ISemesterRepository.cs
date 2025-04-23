@@ -6,8 +6,8 @@ namespace UniChat_BLL.Interfaces
     {
         Task<SemesterDto> GetSemesterByIdAsync(int semesterId);
         Task<IEnumerable<SemesterDto>> GetAllSemestersAsync();
-        Task AddSemesterAsync(SemesterDto semester);
-        Task UpdateSemesterAsync(SemesterDto semester);
+        Task AddSemesterAsync(CreateEditSemesterDto semester);
+        Task UpdateSemesterAsync(CreateEditSemesterDto semester);
         Task DeleteSemesterAsync(int semesterId);
     }
 }

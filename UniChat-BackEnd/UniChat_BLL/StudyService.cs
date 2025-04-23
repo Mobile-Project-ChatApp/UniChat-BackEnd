@@ -12,29 +12,29 @@ namespace UniChat_BLL
       _studyRepository = studyRepository;
     }
 
-    public async Task<StudyDto> GetStudyByIdAsync(int studyId)
+    public  StudyDto GetStudyById(int studyId)
     {
-      return await _studyRepository.GetStudyByIdAsync(studyId);
+      return _studyRepository.GetStudyById(studyId);
     }
 
-    public async Task<IEnumerable<StudyDto>> GetAllStudiesAsync()
+    public  List<StudyDto> GetAllStudies()
     {
-      return await _studyRepository.GetAllStudiesAsync();
+      return _studyRepository.GetAllStudies();
     }
 
-    public async Task AddStudyAsync(StudyDto study)
+    public bool AddStudy(CreateEditStudyDto study)
     {
-      await _studyRepository.AddStudyAsync(study);
+      return _studyRepository.AddStudy(study);
     }
 
-    public async Task UpdateStudyAsync(StudyDto study)
+    public bool UpdateStudy(int id, CreateEditStudyDto study)
     {
-      await _studyRepository.UpdateStudyAsync(study);
+      return _studyRepository.UpdateStudy(id, study);
     }
 
-    public async Task DeleteStudyAsync(int studyId)
+    public bool DeleteStudy(int studyId)
     {
-      await _studyRepository.DeleteStudyAsync(studyId);
+      return _studyRepository.DeleteStudy(studyId);
     }
   }
 }

@@ -15,9 +15,9 @@ namespace UniChat_DAL
             _context = context;
         }
 
-        public async Task<StudyDto> GetStudyByIdAsync(int studyId)
+        public StudyDto GetStudyById(int studyId)
         {
-            var study = await _context.Studies.FindAsync(studyId);
+            var study = _context.Studies.Find(studyId);
             if (study == null) return null;
 
             return new StudyDto
@@ -28,9 +28,9 @@ namespace UniChat_DAL
             };
         }
 
-        public async Task<IEnumerable<StudyDto>> GetAllStudiesAsync()
+        public List<StudyDto> GetAllStudies()
         {
-            var studies = await _context.Studies.ToListAsync();
+            var studies = _context.Studies.ToList();
             return studies.Select(study => new StudyDto
             {
                 Id = study.Id,
@@ -39,38 +39,54 @@ namespace UniChat_DAL
             }).ToList();
         }
 
-        public async Task AddStudyAsync(StudyDto study)
+        public bool AddStudy(CreateEditStudyDto study)
         {
+            if (study == null) return false;
+            
             var newStudy = new Study
             {
                 Name = study.Name,
                 Description = study.Description,
             };
 
-            await _context.Studies.AddAsync(newStudy);
-            await _context.SaveChangesAsync();
-            study.Id = newStudy.Id; // Set the Id of the DTO to the newly created entity's Id
-        }
-
-        public async Task UpdateStudyAsync(StudyDto study)
-        {
-            var existingStudy = await _context.Studies.FindAsync(study.Id);
+            var existingStudy = _context.Studies.FirstOrDefault(s => s.Name == newStudy.Name);
             if (existingStudy != null)
             {
-                existingStudy.Name = study.Name;
-                existingStudy.Description = study.Description;
-                await _context.SaveChangesAsync();
+                return false;
             }
+
+            _context.Studies.Add(newStudy);
+            _context.SaveChanges();
+
+            return true;
         }
 
-        public async Task DeleteStudyAsync(int studyId)
+        public bool UpdateStudy(int id, CreateEditStudyDto study)
         {
-            var study = await _context.Studies.FindAsync(studyId);
-            if (study != null)
+            var existingStudy =  _context.Studies.Find(id);
+            if (existingStudy == null) return false;
+
+            existingStudy.Name = study.Name;
+            existingStudy.Description = study.Description;
+
+            _context.Studies.Update(existingStudy);
+            _context.SaveChanges();
+
+            return true;
+        }
+
+        public bool DeleteStudy(int studyId)
+        {
+            var study = _context.Studies.Find(studyId);
+            if (study == null)
             {
-                _context.Studies.Remove(study);
-                await _context.SaveChangesAsync();
+                return false;
             }
+
+            _context.Studies.Remove(study);
+            _context.SaveChanges();
+
+            return true;
         }
     }
 }

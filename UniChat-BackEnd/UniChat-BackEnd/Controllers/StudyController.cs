@@ -15,42 +15,68 @@ namespace UniChat_BackEnd.Controllers
       _studyService = studyService;
     }
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetStudyById(int id)
-    {
-      var study = await _studyService.GetStudyByIdAsync(id);
-      if (study == null) return NotFound();
-      return Ok(study);
-    }
-
     [HttpGet]
-    public async Task<IActionResult> GetAllStudies()
+    public IActionResult GetAllStudies()
     {
-      var studies = await _studyService.GetAllStudiesAsync();
+      List<StudyDto> studies = _studyService.GetAllStudies();
       return Ok(studies);
     }
 
-    [HttpPost]
-    public async Task<IActionResult> AddStudy([FromBody] StudyDto studyDto)
+    [HttpGet("{id}")]
+    public IActionResult GetStudyById(int id)
     {
-      if (!ModelState.IsValid) return BadRequest(ModelState);
-      await _studyService.AddStudyAsync(studyDto);
-      return CreatedAtAction(nameof(GetStudyById), new { id = studyDto.Id }, studyDto);
+      StudyDto study = _studyService.GetStudyById(id);
+      if (study == null)
+      {
+        return NotFound();
+      }
+      return Ok(study);
+    }
+
+    [HttpPost]
+    public IActionResult AddStudy([FromBody] CreateEditStudyDto study)
+    {
+      if (study == null)
+      {
+        return BadRequest("Invalid study data.");
+      }
+
+      bool result = _studyService.AddStudy(study);
+      if (!result)
+      {
+        return BadRequest("Study already exists.");
+      }
+
+      return Ok(result);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateStudy(int id, [FromBody] StudyDto studyDto)
+    public IActionResult UpdateStudy(int id, [FromBody] CreateEditStudyDto study)
     {
-      if (id != studyDto.Id) return BadRequest("ID mismatch");
-      await _studyService.UpdateStudyAsync(studyDto);
-      return NoContent();
+      if (study == null)
+      {
+        return BadRequest("Invalid study data.");
+      }
+
+      bool result = _studyService.UpdateStudy(id, study);
+      if (!result)
+      {
+        return NotFound();
+      }
+
+      return Ok(result);
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteStudy(int id)
+    public IActionResult DeleteStudy(int id)
     {
-      await _studyService.DeleteStudyAsync(id);
-      return NoContent();
+      bool result = _studyService.DeleteStudy(id);
+      if (!result)
+      {
+        return NotFound();
+      }
+
+      return Ok(result);
     }
   }
 }

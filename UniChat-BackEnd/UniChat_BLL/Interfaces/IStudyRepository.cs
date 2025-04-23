@@ -4,10 +4,10 @@ namespace UniChat_BLL.Interfaces
 {
     public interface IStudyRepository
     {
-        Task<StudyDto> GetStudyByIdAsync(int studyId);
-        Task<IEnumerable<StudyDto>> GetAllStudiesAsync();
-        Task AddStudyAsync(StudyDto study);
-        Task UpdateStudyAsync(StudyDto study);
-        Task DeleteStudyAsync(int studyId);
+        StudyDto GetStudyById(int studyId);
+        List<StudyDto> GetAllStudies();
+        bool AddStudy(CreateEditStudyDto study);
+        bool UpdateStudy(int id, CreateEditStudyDto study);
+        bool DeleteStudy(int studyId);
     }
 }
