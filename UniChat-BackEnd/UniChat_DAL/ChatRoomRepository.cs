@@ -55,7 +55,11 @@ public class ChatRoomRepository : IChatRoomRepository
             Members = chatRoom.UserChatrooms.Select(uc => new UserDto
             {
                 Id = uc.UserId,
-                Username = uc.User.Username
+                Username = uc.User.Username,
+                Email = uc.User.Email,
+                ProfilePicture = uc.User.ProfilePicture,
+                Semester = uc.User.Semester,
+                Study = uc.User.Study,
             }).ToList()
         };
     }
