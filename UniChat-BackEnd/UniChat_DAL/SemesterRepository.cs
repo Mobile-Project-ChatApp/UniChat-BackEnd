@@ -15,9 +15,9 @@ namespace UniChat_DAL
             _context = context;
         }
 
-        public async Task<SemesterDto> GetSemesterByIdAsync(int semesterId)
+        public SemesterDto GetSemesterById(int semesterId)
         {
-            var semester = await _context.Semesters.FindAsync(semesterId);
+            var semester = _context.Semesters.Find(semesterId);
             if (semester == null) return null;
 
             return new SemesterDto
@@ -28,9 +28,9 @@ namespace UniChat_DAL
             };
         }
 
-        public async Task<IEnumerable<SemesterDto>> GetAllSemestersAsync()
+        public List<SemesterDto> GetAllSemesters()
         {
-            var semesters = await _context.Semesters.ToListAsync();
+            var semesters = _context.Semesters.ToList();
             return semesters.Select(semester => new SemesterDto
             {
                 Id = semester.Id,
@@ -39,38 +39,55 @@ namespace UniChat_DAL
             }).ToList();
         }
 
-        public async Task AddSemesterAsync(SemesterDto semester)
+        public bool AddSemester(CreateEditSemesterDto semester)
         {
+            if (semester == null) return false;
+
             var newSemester = new Semester
             {
                 Name = semester.Name,
                 Description = semester.Description,
             };
 
-            await _context.Semesters.AddAsync(newSemester);
-            await _context.SaveChangesAsync();
-            semester.Id = newSemester.Id; // Set the Id of the DTO to the newly created entity's Id
-        }
-
-        public async Task UpdateSemesterAsync(SemesterDto semester)
-        {
-            var existingSemester = await _context.Semesters.FindAsync(semester.Id);
+            var existingSemester = _context.Semesters.FirstOrDefault(s => s.Name == newSemester.Name);
             if (existingSemester != null)
             {
-                existingSemester.Name = semester.Name;
-                existingSemester.Description = semester.Description;
-                await _context.SaveChangesAsync();
+                return false;
             }
+
+            _context.Semesters.Add(newSemester);
+            _context.SaveChanges();
+
+            return true;
         }
 
-        public async Task DeleteSemesterAsync(int semesterId)
+        public bool UpdateSemester(int id, CreateEditSemesterDto semester)
         {
-            var semester = await _context.Semesters.FindAsync(semesterId);
-            if (semester != null)
+            var existingSemester = _context.Semesters.Find(id);
+            if (existingSemester == null)
             {
-                _context.Semesters.Remove(semester);
-                await _context.SaveChangesAsync();
+                return false;
             }
+
+            existingSemester.Name = semester.Name;
+            existingSemester.Description = semester.Description;
+            _context.SaveChanges();
+
+            return true;
+        }
+
+        public bool DeleteSemester(int semesterId)
+        {
+            var semester = _context.Semesters.Find(semesterId);
+            if (semester == null)
+            {
+                return false;
+            }
+
+            _context.Semesters.Remove(semester);
+            _context.SaveChanges();
+
+            return true;
         }
     }
 }

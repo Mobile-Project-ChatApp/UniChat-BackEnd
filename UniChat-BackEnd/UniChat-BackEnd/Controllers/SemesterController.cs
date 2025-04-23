@@ -15,42 +15,68 @@ namespace UniChat_BackEnd.Controllers
       _semesterService = semesterService;
     }
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetSemesterById(int id)
-    {
-      var semester = await _semesterService.GetSemesterByIdAsync(id);
-      if (semester == null) return NotFound();
-      return Ok(semester);
-    }
-
     [HttpGet]
-    public async Task<IActionResult> GetAllSemesters()
+    public IActionResult GetAllSemesters()
     {
-      var semesters = await _semesterService.GetAllSemestersAsync();
+      List<SemesterDto> semesters = _semesterService.GetAllSemesters();
       return Ok(semesters);
     }
 
-    [HttpPost]
-    public async Task<IActionResult> AddSemester([FromBody] SemesterDto semesterDto)
+    [HttpGet("{id}")]
+    public IActionResult GetSemesterById(int id)
     {
-      if (!ModelState.IsValid) return BadRequest(ModelState);
-      await _semesterService.AddSemesterAsync(semesterDto);
-      return CreatedAtAction(nameof(GetSemesterById), new { id = semesterDto.Id }, semesterDto);
+      SemesterDto semester = _semesterService.GetSemesterById(id);
+      if (semester == null)
+      {
+        return NotFound();
+      }
+      return Ok(semester);
+    }
+
+    [HttpPost]
+    public IActionResult AddSemester([FromBody] CreateEditSemesterDto semester)
+    {
+      if (semester == null)
+      {
+        return BadRequest("Invalid semester data.");
+      }
+
+      bool result = _semesterService.AddSemester(semester);
+      if (!result)
+      {
+        return BadRequest("Semester already exists.");
+      }
+
+      return Ok(result);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateSemester(int id, [FromBody] SemesterDto semesterDto)
+    public IActionResult UpdateSemester(int id, [FromBody] CreateEditSemesterDto semester)
     {
-      if (id != semesterDto.Id) return BadRequest("ID mismatch");
-      await _semesterService.UpdateSemesterAsync(semesterDto);
-      return NoContent();
+      if (semester == null)
+      {
+        return BadRequest("Invalid semester data.");
+      }
+
+      bool result = _semesterService.UpdateSemester(id, semester);
+      if (!result)
+      {
+        return NotFound();
+      }
+
+      return Ok(result);
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteSemester(int id)
+    public IActionResult DeleteSemester(int id)
     {
-      await _semesterService.DeleteSemesterAsync(id);
-      return NoContent();
+      bool result = _semesterService.DeleteSemester(id);
+      if (!result)
+      {
+        return NotFound();
+      }
+
+      return Ok(result);
     }
   }
 }

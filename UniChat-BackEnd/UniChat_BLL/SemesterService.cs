@@ -12,29 +12,29 @@ namespace UniChat_BLL
       _semesterRepository = semesterRepository;
     }
 
-    public async Task<SemesterDto> GetSemesterByIdAsync(int semesterId)
+    public SemesterDto GetSemesterById(int semesterId)
     {
-      return await _semesterRepository.GetSemesterByIdAsync(semesterId);
+      return _semesterRepository.GetSemesterById(semesterId);
     }
 
-    public async Task<IEnumerable<SemesterDto>> GetAllSemestersAsync()
+    public List<SemesterDto> GetAllSemesters()
     {
-      return await _semesterRepository.GetAllSemestersAsync();
+      return _semesterRepository.GetAllSemesters();
     }
 
-    public async Task AddSemesterAsync(SemesterDto semester)
+    public bool AddSemester(CreateEditSemesterDto semester)
     {
-      await _semesterRepository.AddSemesterAsync(semester);
+      return _semesterRepository.AddSemester(semester);
     }
 
-    public async Task UpdateSemesterAsync(SemesterDto semester)
+    public bool UpdateSemester(int id, CreateEditSemesterDto semester)
     {
-      await _semesterRepository.UpdateSemesterAsync(semester);
+      return _semesterRepository.UpdateSemester(id, semester);
     }
 
-    public async Task DeleteSemesterAsync(int semesterId)
+    public bool DeleteSemester(int semesterId)
     {
-      await _semesterRepository.DeleteSemesterAsync(semesterId);
+      return _semesterRepository.DeleteSemester(semesterId);
     }
   }
 }
