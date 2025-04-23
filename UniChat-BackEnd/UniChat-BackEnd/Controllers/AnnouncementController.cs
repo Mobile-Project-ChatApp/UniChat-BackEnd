@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using UniChat_BLL;
 using UniChat_BLL.Dto;
+using UniChat_DAL.Entities;
 
 namespace UniChat_BackEnd.Controllers;
 
@@ -11,24 +12,35 @@ namespace UniChat_BackEnd.Controllers;
 public class AnnouncementController : ControllerBase
 {
     private readonly AnnouncementService _announcementService;
+    private readonly ChatRoomService _chatRoomService;
+    private readonly UserService _userService;
 
-    public AnnouncementController(AnnouncementService announcementService)
+    public AnnouncementController(AnnouncementService announcementService, ChatRoomService chatRoomService, UserService userService)
     {
         _announcementService = announcementService;
+        _chatRoomService = chatRoomService;
+        _userService = userService;
     }
 
 
     [HttpGet("chatroom/{chatroomId}")]
+    [Authorize]
     public async Task<IActionResult> GetAllAnnouncementsByChatroom(int chatroomId)
     {
         Claim? userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
         if (userIdClaim == null)
             return Unauthorized();
 
-        if (!int.TryParse(userIdClaim.Value, out int requestId))
-            return BadRequest("Invalid user ID");
+        int userId = int.Parse(userIdClaim.Value);
 
-        List<AnnouncementDto> announcements = await _announcementService.GetAllAnnouncementsByChatroom(chatroomId, requestId);
+        ChatRoomDto? chatroom = _chatRoomService.GetChatRoomById(chatroomId);
+        if (chatroom == null)
+            return NotFound("Chat room not found.");
+
+        if (!chatroom.Members.Any(u => u.Id == userId))
+            return BadRequest("You're not a member of the chat room.");
+
+        List<AnnouncementDto> announcements = await _announcementService.GetAllAnnouncementsByChatroom(chatroomId, userId);
         return Ok(announcements);
     }
 
@@ -39,10 +51,16 @@ public class AnnouncementController : ControllerBase
         if (userIdClaim == null)
             return Unauthorized();
 
-        if (!int.TryParse(userIdClaim.Value, out int requestId))
-            return BadRequest("Invalid user ID");
+        int userId = int.Parse(userIdClaim.Value);
 
-        List<AnnouncementDto> announcements = await _announcementService.GetImportantAnnouncementsByChatroomAsync(chatroomId, requestId);
+        ChatRoomDto? chatroom = _chatRoomService.GetChatRoomById(chatroomId);
+        if (chatroom == null)
+            return NotFound("Chat room not found.");
+
+        if (!chatroom.Members.Any(u => u.Id == userId))
+            return BadRequest("You're not a member of the chat room.");
+
+        List<AnnouncementDto> announcements = await _announcementService.GetImportantAnnouncementsByChatroomAsync(chatroomId, userId);
         return Ok(announcements);
     }
 
@@ -53,10 +71,16 @@ public class AnnouncementController : ControllerBase
         if (userIdClaim == null)
             return Unauthorized();
 
-        if (!int.TryParse(userIdClaim.Value, out int requestId))
-            return BadRequest("Invalid user ID");
+        int userId = int.Parse(userIdClaim.Value);
 
-        List<AnnouncementDto> announcements = await _announcementService.GetRecentAnnouncementsByChatroomAsync(chatroomId, requestId);
+        ChatRoomDto? chatroom = _chatRoomService.GetChatRoomById(chatroomId);
+        if (chatroom == null)
+            return NotFound("Chat room not found.");
+
+        if (!chatroom.Members.Any(u => u.Id == userId))
+            return BadRequest("You're not a member of the chat room.");
+
+        List<AnnouncementDto> announcements = await _announcementService.GetRecentAnnouncementsByChatroomAsync(chatroomId, userId);
         return Ok(announcements);
     }
 
@@ -71,10 +95,16 @@ public class AnnouncementController : ControllerBase
         if (userIdClaim == null)
             return Unauthorized();
 
-        if (!int.TryParse(userIdClaim.Value, out int senderId))
-            return BadRequest("Invalid user ID");
+        int userId = int.Parse(userIdClaim.Value);
 
-        announcementDto.SenderId = senderId;
+        ChatRoomDto? chatroom = _chatRoomService.GetChatRoomById(announcementDto.ChatroomId);
+        if (chatroom == null)
+            return NotFound("Chat room not found.");
+
+        if (!chatroom.Members.Any(u => u.Id == userId))
+            return BadRequest("You're not a member of the chat room.");
+
+        announcementDto.SenderId = userId;
 
         bool result = await _announcementService.CreateAnnouncementAsync(announcementDto);
         if (result)
@@ -118,14 +148,13 @@ public class AnnouncementController : ControllerBase
         if (userIdClaim == null)
             return Unauthorized();
 
-        if (!int.TryParse(userIdClaim.Value, out int senderId))
-            return BadRequest("Invalid user ID");
+        int userId = int.Parse(userIdClaim.Value);
 
         AnnouncementDto? announcement = await _announcementService.GetAnnouncementById(id, 0);
         if (announcement == null)
             return NotFound("Announcement not found.");
 
-        if (announcement.SenderId != senderId)
+        if (announcement.SenderId != userId)
             return Forbid();
 
         bool result = await _announcementService.DeleteAnnouncement(id);
@@ -143,15 +172,33 @@ public class AnnouncementController : ControllerBase
         if (userIdClaim == null)
             return Unauthorized();
 
-        if (!int.TryParse(userIdClaim.Value, out int userId))
-            return BadRequest("Invalid user ID");
+        int userId = int.Parse(userIdClaim.Value);
 
+        // Get announcement
+        AnnouncementDto? announcement = await _announcementService.GetAnnouncementById(markAnnouncementAsReadDto.AnnouncementId, userId);
+        if (announcement == null)
+            return NotFound("Announcement not found.");
+
+        // Get the chatroom associated with this announcement
+        ChatRoomDto? chatroom = _chatRoomService.GetChatRoomById(announcement.ChatroomId);
+        if (chatroom == null)
+            return NotFound("Chat room not found.");
+
+        // Check if user is a member of the chatroom
+        if (!chatroom.Members.Any(u => u.Id == userId))
+            return BadRequest("You're not a member of the chat room.");
+
+        // Check if user is not the sender
+        if (announcement.SenderId == userId)
+            return BadRequest("You cannot mark your own announcement as read.");
+
+        // Proceed to mark as read
         markAnnouncementAsReadDto.UserId = userId;
-
         await _announcementService.MarkAnnouncementAsReadAsync(markAnnouncementAsReadDto.AnnouncementId, userId);
 
         return Ok("Announcement marked as read.");
     }
+
 
 
 }

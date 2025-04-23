@@ -1,11 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using UniChat_BLL;
 using UniChat_BLL.Dto;
 using UniChat_BLL.Exceptions;
-using UniChat_DAL.Entities;
 
 namespace UniChat_BackEnd.Controllers
 {
