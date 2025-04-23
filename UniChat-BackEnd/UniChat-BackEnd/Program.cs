@@ -60,6 +60,8 @@ builder.Services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
 builder.Services.AddScoped<AnnouncementService>();
 builder.Services.AddScoped<IStudyRepository, StudyRepository>();
 builder.Services.AddScoped<StudyService>();
+builder.Services.AddScoped<ISemesterRepository, SemesterRepository>();
+builder.Services.AddScoped<SemesterService>();
 builder.Services.AddScoped<AuthService>();
 
 builder.Services.AddControllers();
