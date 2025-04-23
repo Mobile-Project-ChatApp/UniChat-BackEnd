@@ -7,12 +7,13 @@ namespace UniChat_BLL
     {
       private readonly IChatRoomRepository _chatRoomRepository;
       private readonly UserService _userService;
+      private readonly ISemesterRepository _semesterRepository;
 
-      public ChatRoomService(IChatRoomRepository chatRoomRepository, UserService userService)
+      public ChatRoomService(IChatRoomRepository chatRoomRepository, UserService userService, ISemesterRepository semesterRepository)
       {
-
         _chatRoomRepository = chatRoomRepository;
         _userService = userService;
+        _semesterRepository = semesterRepository;
       }
 
       public List<ChatRoomDto> GetAllChatRooms()
@@ -72,9 +73,6 @@ namespace UniChat_BLL
           {
             return false;
           }
-          {
-            return false;
-          }
         }
 
         if (chatRoom.Studies != null && chatRoom.Studies.Count > 0)
@@ -88,7 +86,8 @@ namespace UniChat_BLL
           }
         }
 
-        return _chatRoomRepository.AddUserToChatRoom(chatRoomId, userId);
+        bool result = _chatRoomRepository.AddUserToChatRoom(chatRoomId, userId);
+        return result;
       }
 
       public bool RemoveUserFromChatRoom(int chatRoomId, int userId)
@@ -108,6 +107,68 @@ namespace UniChat_BLL
         }
 
         return _chatRoomRepository.RemoveUserFromChatRoom(chatRoomId, userId);
+      }
+
+      public bool AddSemesterToChatRoom(int chatRoomId, int semesterId)
+      {
+        ChatRoomDto chatRoom = _chatRoomRepository.GetChatRoomById(chatRoomId);
+
+        if (chatRoom == null)
+        {
+          throw new Exception("Chat room not found");
+        }
+
+        SemesterDto semester = _semesterRepository.GetSemesterById(semesterId);
+
+        if (semester == null)
+        {
+          throw new Exception("Semester not found");
+        }
+
+        return _chatRoomRepository.AddSemesterToChatRoom(chatRoomId, semesterId);
+      }
+
+      public bool RemoveSemesterFromChatRoom(int chatRoomId, int semesterId)
+      {
+        ChatRoomDto chatRoom = _chatRoomRepository.GetChatRoomById(chatRoomId);
+
+        if (chatRoom == null)
+        {
+          throw new Exception("Chat room not found");
+        }
+
+        SemesterDto semester = _semesterRepository.GetSemesterById(semesterId);
+
+        if (semester == null)
+        {
+          throw new Exception("Semester not found");
+        }
+
+        return _chatRoomRepository.RemoveSemesterFromChatRoom(chatRoomId, semesterId);
+      }
+
+      public bool AddStudyToChatRoom(int chatRoomId, int studyId)
+      {
+        ChatRoomDto chatRoom = _chatRoomRepository.GetChatRoomById(chatRoomId);
+
+        if (chatRoom == null)
+        {
+          throw new Exception("Chat room not found");
+        }
+
+        return _chatRoomRepository.AddStudyToChatRoom(chatRoomId, studyId);
+      }
+
+      public bool RemoveStudyFromChatRoom(int chatRoomId, int studyId)
+      {
+        ChatRoomDto chatRoom = _chatRoomRepository.GetChatRoomById(chatRoomId);
+
+        if (chatRoom == null)
+        {
+          throw new Exception("Chat room not found");
+        }
+
+        return _chatRoomRepository.RemoveStudyFromChatRoom(chatRoomId, studyId);
       }
     }
 }

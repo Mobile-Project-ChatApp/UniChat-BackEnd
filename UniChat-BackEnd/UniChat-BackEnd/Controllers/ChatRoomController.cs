@@ -89,5 +89,49 @@ namespace UniChat_BackEnd.Controllers
             }
             return NoContent();
         }
+
+        [HttpPost("{id}/semesters/{semesterId}")]
+        public IActionResult AddSemesterToChatRoom(int id, int semesterId)
+        {
+            bool addedSemester = _chatRoomService.AddSemesterToChatRoom(id, semesterId);
+            if (!addedSemester)
+            {
+                return NotFound();
+            }
+            return NoContent();
+        }
+
+        [HttpDelete("{id}/semesters/{semesterId}")]
+        public IActionResult RemoveSemesterFromChatRoom(int id, int semesterId)
+        {
+            bool removedSemester = _chatRoomService.RemoveSemesterFromChatRoom(id, semesterId);
+            if (!removedSemester)
+            {
+                return NotFound();
+            }
+            return NoContent();
+        }
+
+        [HttpPost("{id}/studies/{studyId}")]
+        public IActionResult AddStudyToChatRoom(int id, int studyId)
+        {
+            bool addedStudy = _chatRoomService.AddStudyToChatRoom(id, studyId);
+            if (!addedStudy)
+            {
+                return NotFound();
+            }
+            return NoContent();
+        }
+
+        [HttpDelete("{id}/studies/{studyId}")]
+        public IActionResult RemoveStudyFromChatRoom(int id, int studyId)
+        {
+            bool removedStudy = _chatRoomService.RemoveStudyFromChatRoom(id, studyId);
+            if (!removedStudy)
+            {
+                return NotFound();
+            }
+            return NoContent();
+        }
     }
 }

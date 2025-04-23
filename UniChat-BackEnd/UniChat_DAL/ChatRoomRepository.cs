@@ -155,5 +155,85 @@ public class ChatRoomRepository : IChatRoomRepository
 
         return true;
     }
+
+    public bool AddSemesterToChatRoom(int chatRoomId, int semesterId)
+    {
+        ChatRoom? chatRoom = _context.ChatRooms.Find(chatRoomId);
+        if (chatRoom == null)
+        {
+            throw new Exception("Chat room not found");
+        }
+
+        Semester? semester = _context.Semesters.Find(semesterId);
+        if (semester == null)
+        {
+            throw new Exception("Semester not found");
+        }
+
+        chatRoom.Semesters.Add(semester);
+        _context.SaveChanges();
+
+        return true;
+    }
+
+    public bool RemoveSemesterFromChatRoom(int chatRoomId, int semesterId)
+    {
+        ChatRoom? chatRoom = _context.ChatRooms.Find(chatRoomId);
+        if (chatRoom == null)
+        {
+            throw new Exception("Chat room not found");
+        }
+
+        Semester? semester = _context.Semesters.Find(semesterId);
+        if (semester == null)
+        {
+            throw new Exception("Semester not found");
+        }
+
+        chatRoom.Semesters.Remove(semester);
+        _context.SaveChanges();
+
+        return true;
+    }
+
+    public bool AddStudyToChatRoom(int chatRoomId, int studyId)
+    {
+        ChatRoom? chatRoom = _context.ChatRooms.Find(chatRoomId);
+        if (chatRoom == null)
+        {
+            throw new Exception("Chat room not found");
+        }
+
+        Study? study = _context.Studies.Find(studyId);
+        if (study == null)
+        {
+            throw new Exception("Study not found");
+        }
+
+        chatRoom.Studies.Add(study);
+        _context.SaveChanges();
+
+        return true;
+    }
+
+    public bool RemoveStudyFromChatRoom(int chatRoomId, int studyId)
+    {
+        ChatRoom? chatRoom = _context.ChatRooms.Find(chatRoomId);
+        if (chatRoom == null)
+        {
+            throw new Exception("Chat room not found");
+        }
+
+        Study? study = _context.Studies.Find(studyId);
+        if (study == null)
+        {
+            throw new Exception("Study not found");
+        }
+
+        chatRoom.Studies.Remove(study);
+        _context.SaveChanges();
+
+        return true;
+    }
 }
 
