@@ -22,6 +22,36 @@ namespace UniChat_DAL.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("ChatRoomSemester", b =>
+                {
+                    b.Property<int>("ChatRoomsId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SemestersId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ChatRoomsId", "SemestersId");
+
+                    b.HasIndex("SemestersId");
+
+                    b.ToTable("ChatRoomSemester");
+                });
+
+            modelBuilder.Entity("ChatRoomStudy", b =>
+                {
+                    b.Property<int>("ChatRoomsId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("StudiesId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ChatRoomsId", "StudiesId");
+
+                    b.HasIndex("StudiesId");
+
+                    b.ToTable("ChatRoomStudy");
+                });
+
             modelBuilder.Entity("UniChat_DAL.Entities.AnnouncementEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -87,32 +117,6 @@ namespace UniChat_DAL.Migrations
                     b.ToTable("ChatRooms");
                 });
 
-            modelBuilder.Entity("UniChat_DAL.Entities.ChatRoomSemester", b =>
-                {
-                    b.Property<int>("ChatRoomId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Semester")
-                        .HasColumnType("integer");
-
-                    b.HasKey("ChatRoomId", "Semester");
-
-                    b.ToTable("ChatRoomSemesters");
-                });
-
-            modelBuilder.Entity("UniChat_DAL.Entities.ChatRoomStudy", b =>
-                {
-                    b.Property<int>("ChatRoomId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Study")
-                        .HasColumnType("text");
-
-                    b.HasKey("ChatRoomId", "Study");
-
-                    b.ToTable("ChatRoomStudies");
-                });
-
             modelBuilder.Entity("UniChat_DAL.Entities.Message", b =>
                 {
                     b.Property<int>("Id")
@@ -141,6 +145,54 @@ namespace UniChat_DAL.Migrations
                     b.HasIndex("SenderId");
 
                     b.ToTable("Messages");
+                });
+
+            modelBuilder.Entity("UniChat_DAL.Entities.Semester", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Semesters");
+                });
+
+            modelBuilder.Entity("UniChat_DAL.Entities.Study", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Studies");
                 });
 
             modelBuilder.Entity("UniChat_DAL.Entities.UserAnnouncementInteraction", b =>
@@ -219,11 +271,11 @@ namespace UniChat_DAL.Migrations
                     b.Property<DateTime?>("RefreshTokenExpiry")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("Semester")
+                    b.Property<int>("SemesterId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Study")
-                        .HasColumnType("text");
+                    b.Property<int>("StudyId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Username")
                         .IsRequired()
@@ -231,7 +283,41 @@ namespace UniChat_DAL.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("SemesterId");
+
+                    b.HasIndex("StudyId");
+
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("ChatRoomSemester", b =>
+                {
+                    b.HasOne("UniChat_DAL.Entities.ChatRoom", null)
+                        .WithMany()
+                        .HasForeignKey("ChatRoomsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("UniChat_DAL.Entities.Semester", null)
+                        .WithMany()
+                        .HasForeignKey("SemestersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ChatRoomStudy", b =>
+                {
+                    b.HasOne("UniChat_DAL.Entities.ChatRoom", null)
+                        .WithMany()
+                        .HasForeignKey("ChatRoomsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("UniChat_DAL.Entities.Study", null)
+                        .WithMany()
+                        .HasForeignKey("StudiesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("UniChat_DAL.Entities.AnnouncementEntity", b =>
@@ -251,28 +337,6 @@ namespace UniChat_DAL.Migrations
                     b.Navigation("Chatroom");
 
                     b.Navigation("Sender");
-                });
-
-            modelBuilder.Entity("UniChat_DAL.Entities.ChatRoomSemester", b =>
-                {
-                    b.HasOne("UniChat_DAL.Entities.ChatRoom", "ChatRoom")
-                        .WithMany("ChatRoomSemesters")
-                        .HasForeignKey("ChatRoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ChatRoom");
-                });
-
-            modelBuilder.Entity("UniChat_DAL.Entities.ChatRoomStudy", b =>
-                {
-                    b.HasOne("UniChat_DAL.Entities.ChatRoom", "ChatRoom")
-                        .WithMany("ChatRoomStudies")
-                        .HasForeignKey("ChatRoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ChatRoom");
                 });
 
             modelBuilder.Entity("UniChat_DAL.Entities.Message", b =>
@@ -332,6 +396,25 @@ namespace UniChat_DAL.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("UniChat_DAL.Entities.UserEntity", b =>
+                {
+                    b.HasOne("UniChat_DAL.Entities.Semester", "Semester")
+                        .WithMany("Users")
+                        .HasForeignKey("SemesterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("UniChat_DAL.Entities.Study", "Study")
+                        .WithMany("Users")
+                        .HasForeignKey("StudyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Semester");
+
+                    b.Navigation("Study");
+                });
+
             modelBuilder.Entity("UniChat_DAL.Entities.AnnouncementEntity", b =>
                 {
                     b.Navigation("UserInteractions");
@@ -341,13 +424,19 @@ namespace UniChat_DAL.Migrations
                 {
                     b.Navigation("Announcements");
 
-                    b.Navigation("ChatRoomSemesters");
-
-                    b.Navigation("ChatRoomStudies");
-
                     b.Navigation("Messages");
 
                     b.Navigation("UserChatrooms");
+                });
+
+            modelBuilder.Entity("UniChat_DAL.Entities.Semester", b =>
+                {
+                    b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("UniChat_DAL.Entities.Study", b =>
+                {
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("UniChat_DAL.Entities.UserEntity", b =>

@@ -66,21 +66,24 @@ namespace UniChat_BLL
           return false;
         }
          
-        if (chatRoom.ChatRoomSemesters != null && chatRoom.ChatRoomSemesters.Count > 0)
+        if (chatRoom.Semesters != null && chatRoom.Semesters.Count > 0)
         {
-          if (!chatRoom.ChatRoomSemesters.Any(cs => cs.Semester == user.Semester))
+          if (!chatRoom.Semesters.Any(s => s.Id == user.SemesterId))
+          {
+            return false;
+          }
           {
             return false;
           }
         }
 
-        if (chatRoom.ChatRoomStudies != null && chatRoom.ChatRoomStudies.Count > 0)
+        if (chatRoom.Studies != null && chatRoom.Studies.Count > 0)
         {
-          foreach (ChatRoomStudyDto study in chatRoom.ChatRoomStudies)
+          foreach (StudyDto study in chatRoom.Studies)
           {
-            if (study.Study != user.Study)
+            if (study.Id == user.StudyId)
             {
-              return false;
+              return true;
             }
           }
         }

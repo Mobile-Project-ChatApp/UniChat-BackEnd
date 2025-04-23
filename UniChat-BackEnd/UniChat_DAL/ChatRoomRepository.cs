@@ -32,8 +32,8 @@ public class ChatRoomRepository : IChatRoomRepository
             .Include(c => c.Messages)
             .Include(c => c.UserChatrooms)
                 .ThenInclude(uc => uc.User)
-            .Include(c => c.ChatRoomSemesters)
-            .Include(c => c.ChatRoomStudies)
+            .Include(c => c.Semesters)
+            .Include(c => c.Studies)
             .FirstOrDefault(c => c.Id == id);
         
         if (chatRoom == null)
@@ -47,13 +47,17 @@ public class ChatRoomRepository : IChatRoomRepository
             Name = chatRoom.Name,
             Description = chatRoom.Description,
             CreatedAt = chatRoom.CreatedAt,
-            ChatRoomSemesters = chatRoom.ChatRoomSemesters.Select(cs => new ChatRoomSemesterDto
+            Semesters = chatRoom.Semesters.Select(sm => new SemesterDto
             {
-                Semester = cs.Semester,
+                Id = sm.Id,
+                Name = sm.Name,
+                Description = sm.Description
             }).ToList(),
-            ChatRoomStudies = chatRoom.ChatRoomStudies.Select(cs => new ChatRoomStudyDto
+            Studies = chatRoom.Studies.Select(st => new StudyDto
             {
-                Study = cs.Study,
+                Id = st.Id,
+                Name = st.Name,
+                Description = st.Description
             }).ToList(),
             Messages = chatRoom.Messages.Select(m => new MessageDto
             {
@@ -74,14 +78,6 @@ public class ChatRoomRepository : IChatRoomRepository
         {
             Name = chatRoomDto.Name,
             Description = chatRoomDto.Description,
-            ChatRoomSemesters = chatRoomDto.ChatRoomSemesters.Select(cs => new ChatRoomSemester
-            {
-                Semester = cs.Semester,
-            }).ToList(),
-            ChatRoomStudies = chatRoomDto.ChatRoomStudies.Select(cs => new ChatRoomStudy
-            {
-                Study = cs.Study,
-            }).ToList(),
         };
 
         _context.ChatRooms.Add(chatRoom);
@@ -100,14 +96,6 @@ public class ChatRoomRepository : IChatRoomRepository
 
         chatRoom.Name = chatRoomDto.Name;
         chatRoom.Description = chatRoomDto.Description;
-        chatRoom.ChatRoomSemesters = chatRoomDto.ChatRoomSemesters.Select(cs => new ChatRoomSemester
-        {
-            Semester = cs.Semester,
-        }).ToList();
-        chatRoom.ChatRoomStudies = chatRoomDto.ChatRoomStudies.Select(cs => new ChatRoomStudy
-        {
-            Study = cs.Study,
-        }).ToList();
 
         _context.SaveChanges();
 

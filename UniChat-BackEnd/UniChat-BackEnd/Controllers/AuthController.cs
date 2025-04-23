@@ -59,8 +59,8 @@ public IActionResult ResetPassword([FromBody] ResetPasswordDto resetDto)
         PasswordHash = resetDto.Password, // Will be hashed inside UserService
         ProfilePicture = user.ProfilePicture,
         CreatedAt = user.CreatedAt,
-        Semester = user.Semester,
-        Study = user.Study,
+        SemesterId = user.SemesterId,
+        StudyId = user.StudyId,
         RefreshToken = user.RefreshToken,
         RefreshTokenExpiry = user.RefreshTokenExpiry
     };

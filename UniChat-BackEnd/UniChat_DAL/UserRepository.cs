@@ -52,8 +52,8 @@ public class UserRepository : IUserRepository
                 PasswordHash = user.PasswordHash,
                 ProfilePicture = user.ProfilePicture,
                 CreatedAt = user.CreatedAt,
-                Semester = user.Semester,
-                Study = user.Study,
+                SemesterId = user.SemesterId,
+                StudyId = user.StudyId,
                 RefreshToken = user.RefreshToken,
                 RefreshTokenExpiry = user.RefreshTokenExpiry
 
@@ -82,8 +82,8 @@ public class UserRepository : IUserRepository
                 Email = userDTO.Email,
                 PasswordHash = userDTO.PasswordHash,
                 ProfilePicture = userDTO.ProfilePicture,
-                Semester = userDTO.Semester,
-                Study = userDTO.Study,
+                SemesterId = userDTO.SemesterId,
+                StudyId = userDTO.StudyId,
                 CreatedAt = userDTO.CreatedAt
 
             };
@@ -135,8 +135,8 @@ public class UserRepository : IUserRepository
             user.PasswordHash = userDTO.PasswordHash;
             user.ProfilePicture = userDTO.ProfilePicture;
             user.CreatedAt = userDTO.CreatedAt;
-            user.Semester = userDTO.Semester;
-            user.Study = userDTO.Study;
+            user.SemesterId = userDTO.SemesterId;
+            user.StudyId = userDTO.StudyId;
             user.RefreshToken = userDTO.RefreshToken;
             user.RefreshTokenExpiry = userDTO.RefreshTokenExpiry;
 
